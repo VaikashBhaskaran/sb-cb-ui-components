@@ -24,8 +24,8 @@ describe('AudioNativeComponent', () => {
         }
 
         mockContentSvc = {
-            saveContinueLearning: jest.fn().mockReturnValue(of({})),
-            setS3Cookie: jest.fn().mockReturnValue(of({}))
+            saveContinueLearning: jasmine.createSpy().and.returnValue(of({})),
+            setS3Cookie: jasmine.createSpy().and.returnValue(of({}))
         }
 
         mockValueSvc = {
@@ -33,7 +33,7 @@ describe('AudioNativeComponent', () => {
         }
 
         mockViewerSvc = {
-            getAuthoringUrl: jest.fn().mockImplementation(url => `author-${url}`)
+            getAuthoringUrl: jasmine.createSpy().and.callFake(url => `author-${url}`)
         }
 
         mockConfigSvc = {
@@ -65,27 +65,23 @@ describe('AudioNativeComponent', () => {
         })
 
         it('should subscribe to screen size changes', () => {
-            const screenSizeSpy = jest.spyOn(mockValueSvc.isXSmall$, 'subscribe')
+            const screenSizeSpy = spyOn(mockValueSvc.isXSmall$, 'subscribe').and.callThrough()
             component.ngOnInit()
             expect(screenSizeSpy).toHaveBeenCalled()
         })
 
         it('should initialize audio data from route', () => {
             component.ngOnInit()
-            expect(component.audioData).toEqual(mockAudioData)
+            expect(component.audioData).toEqual(mockAudioData as any)
         })
 
         it('should modify artifactUrl for preview mode', () => {
-            // Mock window.location.href
-            const originalLocation = window.location
-            delete (window as any).location
-            window.location = { ...originalLocation, href: 'http://example.com/author/preview' } as any
+            // forPreview is read from window.location at construction; set it directly
+            mockActivatedRoute.data = of({ content: { data: { ...mockAudioData } } })
+            component.forPreview = true
 
             component.ngOnInit()
-            expect(component.audioData?.artifactUrl).toBe('http://example.com/audio.mp3')
-
-            // Restore original location
-            window.location = originalLocation
+            expect(component.audioData?.artifactUrl).toBe('author-http://example.com/audio.mp3')
         })
 
         it('should set appIcon as default thumbnail if available', () => {
@@ -105,9 +101,9 @@ describe('AudioNativeComponent', () => {
             component.ngOnInit()
 
             // Create spies for unsubscribe methods
-            const routeDataUnsubscribe = jest.fn()
-            const screenSizeUnsubscribe = jest.fn()
-            const viewerDataUnsubscribe = jest.fn();
+            const routeDataUnsubscribe = jasmine.createSpy()
+            const screenSizeUnsubscribe = jasmine.createSpy()
+            const viewerDataUnsubscribe = jasmine.createSpy();
 
             // Set up the subscriptions with spy methods
             (component as any).routeDataSubscription = { unsubscribe: routeDataUnsubscribe };
@@ -131,7 +127,7 @@ describe('AudioNativeComponent', () => {
     describe('saveContinueLearning', () => {
         it('should call saveContinueLearning with correct parameters', () => {
             const timestamp = 1234567890
-            jest.spyOn(Date, 'now').mockImplementation(() => timestamp)
+            spyOn(Date, 'now').and.callFake(() => timestamp)
 
 
 
@@ -143,8 +139,8 @@ describe('AudioNativeComponent', () => {
             expect(mockContentSvc.saveContinueLearning).toHaveBeenCalledWith({
                 contextPathId: '',
                 resourceId: '',
-                data: expect.any(String),
-                dateAccessed: expect.any(Number)
+                data: jasmine.any(String),
+                dateAccessed: jasmine.any(Number)
             })
         })
     })

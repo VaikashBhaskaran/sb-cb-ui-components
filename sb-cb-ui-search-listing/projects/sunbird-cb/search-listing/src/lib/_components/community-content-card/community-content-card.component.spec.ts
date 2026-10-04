@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { CommunityContentCardComponent } from './community-content-card.component';
 import { NO_ERRORS_SCHEMA, Pipe, PipeTransform } from '@angular/core';
+import { SearchListingService } from '../../_services/search-listing.service';
 
 // Create a mock pipe for numberShortener
 @Pipe({
@@ -59,7 +60,8 @@ describe('CommunityContentCardComponent', () => {
         MockTranslatePipe
       ],
       providers: [
-        { provide: Router, useValue: mockRouter }
+        { provide: Router, useValue: mockRouter },
+        { provide: SearchListingService, useValue: { searchConfig: {} } }
       ],
       schemas: [NO_ERRORS_SCHEMA] // Ignore unknown elements and attributes
     }).compileComponents();

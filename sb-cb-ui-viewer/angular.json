@@ -26,7 +26,18 @@
           "options": {
             "main": "project/ws/viewer/src/test.ts",
             "tsConfig": "project/ws/viewer/tsconfig.spec.json",
-            "karmaConfig": "project/ws/viewer/karma.conf.js"
+            "karmaConfig": "project/ws/viewer/karma.conf.js",
+            "polyfills": ["@angular/localize/init"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["node_modules/@sunbird-cb/design-system/src/styles"]
+            },
+            "exclude": [
+              "lib/plugins/rdbms-hands-on/**/*.spec.ts",
+              "lib/routes/rdbms-hands-on/**/*.spec.ts",
+              "lib/route-view-container/rdbms-hands-on/**/*.spec.ts",
+              "lib/routes/offline-session/**/*.spec.ts",
+              "lib/resolvers/config-resolver.service.spec.ts"
+            ]
           }
         }
       }

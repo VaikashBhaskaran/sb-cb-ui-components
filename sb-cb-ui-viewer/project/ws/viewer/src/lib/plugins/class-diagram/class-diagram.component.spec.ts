@@ -2,32 +2,30 @@ import { ClassDiagramComponent } from './class-diagram.component'
 import { DomSanitizer } from '@angular/platform-browser'
 import { ClassDiagramService } from './class-diagram.service'
 import { ElementRef, Renderer2 } from '@angular/core'
+import { discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing'
 import { of, throwError } from 'rxjs'
+import { jsPlumb } from 'jsplumb'
 
-jest.mock('jsplumb', () => ({
-  jsPlumb: {
-    getInstance: () => ({
-      registerConnectionType: jest.fn(),
-      draggable: jest.fn(),
-      batch: jest.fn(),
-      bind: jest.fn(),
-      select: jest.fn(() => ({
-        each: jest.fn(),
-        delete: jest.fn(),
-      })),
-      deleteEveryConnection: jest.fn(),
-      makeSource: jest.fn(),
-      makeTarget: jest.fn(),
-      deleteConnection: jest.fn(),
-    }),
-  },
-}))
+const createJsPlumbInstance = () => ({
+  registerConnectionType: jasmine.createSpy(),
+  draggable: jasmine.createSpy(),
+  batch: jasmine.createSpy(),
+  bind: jasmine.createSpy(),
+  select: jasmine.createSpy().and.callFake(() => ({
+    each: jasmine.createSpy(),
+    delete: jasmine.createSpy(),
+  })),
+  deleteEveryConnection: jasmine.createSpy(),
+  makeSource: jasmine.createSpy(),
+  makeTarget: jasmine.createSpy(),
+  deleteConnection: jasmine.createSpy(),
+})
 
 describe('ClassDiagramComponent', () => {
   let component: ClassDiagramComponent
-  let mockDomSanitizer: jest.Mocked<DomSanitizer>
-  let mockRenderer: jest.Mocked<Renderer2>
-  let mockClassDiagramService: jest.Mocked<ClassDiagramService>
+  let mockDomSanitizer: jasmine.SpyObj<DomSanitizer>
+  let mockRenderer: jasmine.SpyObj<Renderer2>
+  let mockClassDiagramService: jasmine.SpyObj<ClassDiagramService>
   let mockElementRef: ElementRef
 
   const mockClassDiagram = {
@@ -42,18 +40,20 @@ describe('ClassDiagramComponent', () => {
   }
 
   beforeEach(() => {
+    spyOn(jsPlumb, 'getInstance').and.callFake(() => createJsPlumbInstance() as any)
+
     mockDomSanitizer = {
-      bypassSecurityTrustHtml: jest.fn(html => html),
+      bypassSecurityTrustHtml: jasmine.createSpy().and.callFake(html => html),
     } as any
 
     mockRenderer = {
-      listen: jest.fn(),
-      createElement: jest.fn(),
-      appendChild: jest.fn(),
+      listen: jasmine.createSpy(),
+      createElement: jasmine.createSpy(),
+      appendChild: jasmine.createSpy(),
     } as any
 
     mockClassDiagramService = {
-      submitClassDiagram: jest.fn(),
+      submitClassDiagram: jasmine.createSpy(),
     } as any
 
     mockElementRef = {
@@ -70,10 +70,6 @@ describe('ClassDiagramComponent', () => {
     component.classDiagram = mockClassDiagram
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
-
   it('should create', () => {
     expect(component).toBeTruthy()
   })
@@ -88,44 +84,39 @@ describe('ClassDiagramComponent', () => {
       expect(mockRenderer.listen).toHaveBeenCalledWith(
         mockElementRef.nativeElement,
         'dragover',
-        expect.any(Function)
+        jasmine.any(Function)
       )
       expect(mockRenderer.listen).toHaveBeenCalledWith(
         mockElementRef.nativeElement,
         'drop',
-        expect.any(Function)
+        jasmine.any(Function)
       )
       expect(mockRenderer.listen).toHaveBeenCalledWith(
         mockElementRef.nativeElement,
         'click',
-        expect.any(Function)
+        jasmine.any(Function)
       )
     })
   })
 
   describe('initializeClassDiagram', () => {
-    beforeEach(() => {
-      jest.useFakeTimers()
+    // ngOnChanges starts the countdown interval, so it has to run inside the fake zone
+    it('should initialize class diagram data', fakeAsync(() => {
       component.ngOnChanges()
-    })
-
-    afterEach(() => {
-      jest.useRealTimers()
-    })
-
-    it('should initialize class diagram data', () => {
       expect(component.clsDiagramData).toBeDefined()
       expect(component.clsDiagramData?.timeLimit).toBe(30000)
       expect(component.classOptions.length).toBe(2)
-    })
+      discardPeriodicTasks()
+    }))
 
-
-
-    it('should submit when timer expires', () => {
-      const submitSpy = jest.spyOn(component, 'submit')
-      jest.advanceTimersByTime(31000)
+    it('should submit when timer expires', fakeAsync(() => {
+      mockClassDiagramService.submitClassDiagram.and.returnValue(of(null as any))
+      const submitSpy = spyOn(component, 'submit').and.callThrough()
+      component.ngOnChanges()
+      tick(31000)
       expect(submitSpy).toHaveBeenCalled()
-    })
+      discardPeriodicTasks()
+    }))
   })
 
 
@@ -133,17 +124,17 @@ describe('ClassDiagramComponent', () => {
   describe('submission handling', () => {
     beforeEach(() => {
       // Mock DOM elements and jsPlumb instance
-      document.getElementsByClassName = jest.fn().mockReturnValue([{
-        getElementsByClassName: jest.fn().mockReturnValue([{
-          getAttribute: jest.fn().mockReturnValue('1'),
+      spyOn(document, 'getElementsByClassName').and.returnValue([{
+        getElementsByClassName: jasmine.createSpy().and.returnValue([{
+          getAttribute: jasmine.createSpy().and.returnValue('1'),
           classList: { length: 1 },
         }]),
-      }])
+      }] as any)
     })
 
     it('should handle successful submission', () => {
 
-      mockClassDiagramService.submitClassDiagram.mockReturnValue(of())
+      mockClassDiagramService.submitClassDiagram.and.returnValue(of())
 
       component.submit()
 
@@ -153,7 +144,7 @@ describe('ClassDiagramComponent', () => {
     })
 
     it('should handle submission error', () => {
-      mockClassDiagramService.submitClassDiagram.mockReturnValue(throwError('Error'))
+      mockClassDiagramService.submitClassDiagram.and.returnValue(throwError('Error'))
 
       component.submit()
 
@@ -183,7 +174,7 @@ describe('ClassDiagramComponent', () => {
     it('should handle drag event', () => {
       const mockEvent = {
         dataTransfer: {
-          setData: jest.fn(),
+          setData: jasmine.createSpy(),
         },
         target: {
           textContent: 'TestClass',
@@ -198,17 +189,17 @@ describe('ClassDiagramComponent', () => {
     it('should handle drop event for class name', () => {
       const mockEvent = {
         dataTransfer: {
-          getData: jest.fn().mockReturnValue('testclass'),
+          getData: jasmine.createSpy().and.returnValue('testclass'),
         },
         target: {
           id: 'cls1',
         },
-        preventDefault: jest.fn(),
+        preventDefault: jasmine.createSpy(),
       }
 
-      document.getElementById = jest.fn().mockReturnValue({
+      spyOn(document, 'getElementById').and.returnValue({
         innerHTML: '',
-      })
+      } as any)
 
       component.drop(mockEvent)
 

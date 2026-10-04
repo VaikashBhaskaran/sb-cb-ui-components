@@ -3,7 +3,7 @@ import { SearchFiltersComponent } from './search-filters.component';
 import {
   CATEGORY_TYPE,
   TypeOfEvents,
-} from '../../../../../../../author/src/lib/constants/constant';
+} from '../../_constants/search-listing.constant';
 import { SearchCategory } from '../../_models/search-listing.model';
 
 describe('SearchFiltersComponent', () => {
@@ -13,6 +13,9 @@ describe('SearchFiltersComponent', () => {
   let configSvcMock: any;
   let langTranslationsMock: any;
   let originalLocalStorage: any;
+  let searchServiceMock: any;
+  let selectionModelMock: any;
+  let selectionStrategyMock: any;
 
   const mockFacets = [
     [
@@ -104,11 +107,28 @@ describe('SearchFiltersComponent', () => {
     (global as any).environment = mockEnvironment;
 
     // Create component
+    searchServiceMock = {
+      getSearchConfig: jest.fn().mockResolvedValue(null),
+    };
+
+    selectionModelMock = {
+      selection: null,
+      updateSelection: jest.fn(),
+    };
+
+    selectionStrategyMock = {
+      selectionFinished: jest.fn(),
+    };
+
     component = new SearchFiltersComponent(
+      mockEnvironment,
       activatedRouteMock,
       translateServiceMock,
       langTranslationsMock,
-      configSvcMock
+      configSvcMock,
+      searchServiceMock,
+      selectionModelMock,
+      selectionStrategyMock
     );
 
     // Mock component methods that use lodash

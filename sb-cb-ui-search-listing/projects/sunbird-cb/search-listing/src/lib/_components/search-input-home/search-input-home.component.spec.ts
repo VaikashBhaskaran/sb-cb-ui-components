@@ -13,6 +13,10 @@ describe('SearchInputHomeComponent', () => {
   let mockSearchV3Service: any;
   let mockContSvc: any;
   let queryParamMap: Subject<any>;
+  let mockSearchListingService: any;
+  let mockTranslate: any;
+  let mockSnackbar: any;
+  const mockEnvironment = { compentencyVersionKey: 'v1' };
 
   beforeEach(() => {
     queryParamMap = new Subject();
@@ -27,7 +31,8 @@ describe('SearchInputHomeComponent', () => {
     };
     
     mockRouter = {
-      navigate: jest.fn()
+      navigate: jest.fn(),
+      events: new Subject<any>()
     };
     
     mockSearchServService = {
@@ -106,15 +111,34 @@ describe('SearchInputHomeComponent', () => {
       })
     };
 
+    // SearchListingService now provides both config and search APIs
+    mockSearchListingService = {
+      ...mockSearchServService,
+      ...mockSearchV3Service,
+      updatedUserRoles$: new Subject<string[]>(),
+      setRolesForCategory$: new Subject<{ category: string, roles?: string[] }>(),
+      recentCreate: jest.fn().mockResolvedValue({})
+    };
+
+    mockTranslate = {
+      setDefaultLang: jest.fn(),
+      use: jest.fn()
+    };
+
+    mockSnackbar = {
+      openFromComponent: jest.fn()
+    };
+
     component = new SearchInputHomeComponent(
       mockActivatedRoute,
       mockRouter,
-      mockSearchServService,
       mockConfigSvc,
-      mockRoute,
       mockERef,
-      mockSearchV3Service,
-      mockContSvc
+      mockSearchListingService,
+      mockContSvc,
+      mockEnvironment,
+      mockTranslate,
+      mockSnackbar
     );
 
     // Mock document methods
@@ -126,7 +150,7 @@ describe('SearchInputHomeComponent', () => {
 
     // Spy on component methods
     jest.spyOn(component, 'searchFromQuery').mockImplementation(jest.fn());
-    jest.spyOn(component, 'searchInNLP').mockImplementation(jest.fn());
+    jest.spyOn(component, 'searchInNLP').mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -176,7 +200,7 @@ describe('SearchInputHomeComponent', () => {
 
   it('should update placeHolder on ngOnChanges', () => {
     component.placeHolder = 'New Placeholder';
-    component.ngOnChanges();
+    component.ngOnChanges({});
     expect(component.placeHolder).toBe('New Placeholder');
   });
 
@@ -256,9 +280,14 @@ describe('SearchInputHomeComponent', () => {
         queryParams: {
           q: 'test query',
           search: 'processed query',
-          category: null  // The actual value passed, not SearchCategory.All
-        },
-        queryParamsHandling: 'merge'
+          category: null,  // The actual value passed, not SearchCategory.All
+          p: null,
+          f: null,
+          tab: null,
+          filtersPanel: 'show',
+          user: null
+        }
+        // queryParamsHandling: 'merge' is only added when already on /app/globalsearch
       }
     );
     

@@ -33,22 +33,22 @@ describe('KarmaRedeemDialogComponent', () => {
 
     it('should return the default icon when data has no icon', () => {
       component.data = {}
-      expect(component.icon).toBe('/assets/icons/home-v2/karma-badge.svg')
+      expect(component.icon).toBe('/assets/icons/karmawallet-v2/RedemKarmaCoin.svg')
     })
 
     it('should return the default icon when icon is an empty string', () => {
       component.data = { icon: '' }
-      expect(component.icon).toBe('/assets/icons/home-v2/karma-badge.svg')
+      expect(component.icon).toBe('/assets/icons/karmawallet-v2/RedemKarmaCoin.svg')
     })
 
     it('should return the default icon when data is null', () => {
       component.data = null
-      expect(component.icon).toBe('/assets/icons/home-v2/karma-badge.svg')
+      expect(component.icon).toBe('/assets/icons/karmawallet-v2/RedemKarmaCoin.svg')
     })
 
     it('should return the default icon when data is undefined', () => {
       component.data = undefined
-      expect(component.icon).toBe('/assets/icons/home-v2/karma-badge.svg')
+      expect(component.icon).toBe('/assets/icons/karmawallet-v2/RedemKarmaCoin.svg')
     })
   })
 

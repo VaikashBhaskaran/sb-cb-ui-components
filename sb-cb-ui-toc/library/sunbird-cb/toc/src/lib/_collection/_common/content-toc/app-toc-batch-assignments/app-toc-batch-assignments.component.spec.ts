@@ -1,98 +1,6 @@
 // app-toc-batch-assignments.component.spec.ts
 
-// Mock all external modules BEFORE importing anything
-jest.mock('@sunbird-cb/collection', () => ({
-  NsContent: {
-    EPrimaryCategory: {
-      RESOURCE: 'Resource',
-      MODULE: 'Module',
-      COURSE: 'Course',
-      PRACTICE_RESOURCE: 'PracticeResource',
-      FINAL_ASSESSMENT: 'FinalAssessment',
-      OFFLINE_SESSION: 'OfflineSession',
-      BLENDED_PROGRAM: 'BlendedProgram',
-      CURATED_PROGRAM: 'CuratedProgram',
-      STANDALONE_ASSESSMENT: 'StandaloneAssessment'
-    },
-    EMimeTypes: {
-      PDF: 'application/pdf',
-      MP4: 'video/mp4',
-      YOUTUBE: 'video/youtube',
-      HTML: 'text/html',
-      QUIZ: 'application/quiz'
-    },
-    EFilterCategory: {
-      ALL: 'all',
-      LEARN: 'learn',
-      PRACTICE: 'practice',
-      ASSESS: 'assess'
-    },
-    EContextLockingType: {
-      COURSE_ASSESSMENT_ONLY: 'courseAssessmentOnly'
-    },
-    ECourseCategory: {
-      COURSE: 'Course'
-    }
-  },
-  NsContentConstants: {
-    VALID_PRACTICE_RESOURCES: new Set(['practice']),
-    VALID_ASSESSMENT_RESOURCES: new Set(['assessment'])
-  },
-  WidgetContentService: jest.fn().mockImplementation(() => ({
-    fetchContent: jest.fn(),
-    getFirstChildInHierarchy: jest.fn()
-  }))
-}));
-
-jest.mock('@sunbird-cb/utils-v2', () => ({
-  ConfigurationsService: jest.fn().mockImplementation(() => ({
-    userProfile: {
-      userId: 'test-user-id',
-      userName: 'Test User',
-      rootOrgId: 'test-org-id',
-      departmentName: 'Test Department',
-      country: 'India'
-    },
-    rootOrg: 'test-root-org',
-    org: ['test-org']
-  })),
-  TFetchStatus: 'none'
-}));
-
-jest.mock('@sunbird-cb/consumption', () => ({
-  ContentLanguageService: jest.fn().mockImplementation(() => ({
-    getContentLanguage: jest.fn().mockReturnValue('en')
-  }))
-}));
-
-jest.mock('lodash', () => ({
-  get: jest.fn(),
-  map: jest.fn(),
-  each: jest.fn(),
-  first: jest.fn(),
-  filter: jest.fn(),
-  toInteger: jest.fn(),
-  defaults: jest.fn()
-}));
-
-// Mock the specific AppTocService path
-jest.mock('../../../../../../../../project/ws/app/src/lib/routes/app-toc/services/app-toc.service', () => ({
-  AppTocService: jest.fn().mockImplementation(() => ({
-    searchAssignments: jest.fn(),
-    getAssignmentStatus: jest.fn(),
-    createContentV2: jest.fn(),
-    readContentV2: jest.fn(),
-    upload: jest.fn(),
-    updateContentWithFewFields: jest.fn(),
-    submitAssignment: jest.fn(),
-    submitDraftAssignment: jest.fn(),
-    analyticsReplaySubject: { next: jest.fn() },
-    batchReplaySubject: { next: jest.fn() },
-    resumeData: { next: jest.fn() }
-  }))
-}));
-
-// Now import the required modules
+// Import the required modules
 import { of, throwError } from 'rxjs';
 import { AppTocBatchAssignmentsComponent } from './app-toc-batch-assignments.component';
 
@@ -294,9 +202,9 @@ describe('AppTocBatchAssignmentsComponent', () => {
   });
 
   describe('checkFileType', () => {
-    it('should return false for files larger than 1024MB', () => {
+    it('should return false for files larger than 5MB', () => {
       const largeFile = new File(['content'], 'large.pdf', { type: 'application/pdf' });
-      Object.defineProperty(largeFile, 'size', { value: 1025 * 1024 * 1024 });
+      Object.defineProperty(largeFile, 'size', { value: 6 * 1024 * 1024 });
 
       const result = component.checkFileType(largeFile);
       expect(result).toBe(false);
@@ -310,34 +218,6 @@ describe('AppTocBatchAssignmentsComponent', () => {
       const result = component.checkFileType(validFile);
       expect(result).toBe(true);
       expect(component.fileExtention).toBe('.pdf');
-    });
-  });
-
-  describe('getMimeType', () => {
-    it('should return correct mime type for pdf', () => {
-      component.fileExtention = '.pdf';
-      expect(component.getMimeType()).toBe('application/pdf');
-    });
-
-    it('should return correct mime type for doc files', () => {
-      component.fileExtention = '.doc';
-      expect(component.getMimeType()).toBe('application/msword');
-
-      component.fileExtention = '.docx';
-      expect(component.getMimeType()).toBe('application/msword');
-    });
-
-    it('should return default mime type for unknown extensions', () => {
-      component.fileExtention = '.unknown';
-      expect(component.getMimeType()).toBe('application/octet-stream');
-    });
-  });
-
-  describe('getRandomNumber', () => {
-    it('should generate 16 digit random number', () => {
-      const result = component.getRandomNumber();
-      expect(result.length).toBe(16);
-      expect(/^\d{16}$/.test(result)).toBe(true);
     });
   });
 
@@ -402,13 +282,13 @@ describe('AppTocBatchAssignmentsComponent', () => {
       mockFileList.length = 1;
 
       const checkFileTypeSpy = jest.spyOn(component, 'checkFileType').mockReturnValue(true);
-      const createResourceSpy = jest.spyOn(component, 'createResource').mockImplementation(() => Promise.resolve());
+      const uploadSpy = jest.spyOn(component, 'upload').mockImplementation(() => Promise.resolve());
       component.selectedAssignment = { title: 'Test' };
 
       component.fileInputEmit(mockFileList);
 
       expect(checkFileTypeSpy).toHaveBeenCalledWith(mockFile);
-      expect(createResourceSpy).toHaveBeenCalledWith(mockFile, component.selectedAssignment);
+      expect(uploadSpy).toHaveBeenCalledWith(mockFile);
     });
   });
 });

@@ -1,3 +1,6 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { RouterTestingModule } from '@angular/router/testing'
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
 
 import { IapComponent } from './iap.component'
@@ -9,6 +12,11 @@ describe('IapComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [IapComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule],
+      providers: [
+        { provide: 'environment', useValue: {} },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents()
   }))

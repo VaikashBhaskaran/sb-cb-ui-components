@@ -29,7 +29,8 @@
           "options": {
             "main": "library/sunbird-cb/tree-hierarchy/src/test.ts",
             "tsConfig": "library/sunbird-cb/tree-hierarchy/tsconfig.spec.json",
-            "karmaConfig": "library/sunbird-cb/tree-hierarchy/karma.conf.js"
+            "karmaConfig": "library/sunbird-cb/tree-hierarchy/karma.conf.js",
+            "polyfills": ["zone.js", "zone.js/testing", "@angular/localize/init"]
           }
         }
       }

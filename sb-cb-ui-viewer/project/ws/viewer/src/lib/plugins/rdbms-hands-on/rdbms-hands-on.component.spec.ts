@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { DbmsHandsOnComponent } from './rdbms-hands-on.component'
 
@@ -6,7 +6,7 @@ describe('DbmsHandsOnComponent', () => {
   let component: DbmsHandsOnComponent
   let fixture: ComponentFixture<DbmsHandsOnComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [DbmsHandsOnComponent],
     })

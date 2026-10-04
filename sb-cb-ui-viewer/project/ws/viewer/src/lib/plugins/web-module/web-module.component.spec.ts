@@ -2,7 +2,7 @@ import { SimpleChanges, SimpleChange } from '@angular/core'
 import { WebModuleComponent } from './web-module.component'
 import { DomSanitizer } from '@angular/platform-browser'
 import { ValueService, ConfigurationsService } from '@sunbird-cb/utils'
-import { WidgetContentService } from '@sunbird-cb/toc'
+import { WidgetContentService } from '@sunbird-cb/collection'
 import { ViewerUtilService } from '../../viewer-util.service'
 import { EventService } from '@sunbird-cb/utils'
 import { ActivatedRoute } from '@angular/router'
@@ -10,18 +10,18 @@ import { of } from 'rxjs'
 
 describe('WebModuleComponent', () => {
   let component: WebModuleComponent
-  let mockDomSanitizer: jest.Mocked<DomSanitizer>
-  let mockValueService: jest.Mocked<ValueService>
-  let mockContentService: jest.Mocked<WidgetContentService>
-  let mockViewerService: jest.Mocked<ViewerUtilService>
-  let mockConfigService: jest.Mocked<ConfigurationsService>
-  let mockEventService: jest.Mocked<EventService>
-  let mockActivatedRoute: jest.Mocked<ActivatedRoute>
+  let mockDomSanitizer: jasmine.SpyObj<DomSanitizer>
+  let mockValueService: jasmine.SpyObj<ValueService>
+  let mockContentService: jasmine.SpyObj<WidgetContentService>
+  let mockViewerService: jasmine.SpyObj<ViewerUtilService>
+  let mockConfigService: jasmine.SpyObj<ConfigurationsService>
+  let mockEventService: jasmine.SpyObj<EventService>
+  let mockActivatedRoute: jasmine.SpyObj<ActivatedRoute>
 
   beforeEach(() => {
     mockDomSanitizer = {
-      bypassSecurityTrustResourceUrl: jest.fn(url => url),
-      bypassSecurityTrustUrl: jest.fn(url => url),
+      bypassSecurityTrustResourceUrl: jasmine.createSpy().and.callFake(url => url),
+      bypassSecurityTrustUrl: jasmine.createSpy().and.callFake(url => url),
     } as any
 
     mockValueService = {
@@ -29,11 +29,11 @@ describe('WebModuleComponent', () => {
     } as any
 
     mockContentService = {
-      saveContinueLearning: jest.fn().mockReturnValue(of({})),
+      saveContinueLearning: jasmine.createSpy().and.returnValue(of({})),
     } as any
 
     mockViewerService = {
-      realTimeProgressUpdate: jest.fn(),
+      realTimeProgressUpdate: jasmine.createSpy(),
     } as any
 
     mockConfigService = {
@@ -42,7 +42,7 @@ describe('WebModuleComponent', () => {
     } as any
 
     mockEventService = {
-      raiseInteractTelemetry: jest.fn(),
+      raiseInteractTelemetry: jasmine.createSpy(),
     } as any
 
     mockActivatedRoute = {
@@ -60,6 +60,11 @@ describe('WebModuleComponent', () => {
       mockConfigService,
       mockActivatedRoute,
     )
+
+    // no template is rendered here, so stand in for the @ViewChild iframe that setTheme() styles
+    component.iframeElem = {
+      nativeElement: { contentWindow: { document: document.implementation.createHTMLDocument('') } },
+    } as any
 
     // Setup default test data
     component.widgetData = {
@@ -215,9 +220,9 @@ describe('WebModuleComponent', () => {
     it('should raise telemetry event with correct parameters', () => {
       component.raiseTelemetry('test-action', 'test-event')
       expect(mockEventService.raiseInteractTelemetry).toHaveBeenCalledWith(
-        'test-action',
+        'test-action' as any,
         'test-event',
-        expect.any(Object)
+        jasmine.any(Object)
       )
     })
 

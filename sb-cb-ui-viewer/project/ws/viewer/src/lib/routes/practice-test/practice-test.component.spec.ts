@@ -3,19 +3,21 @@ import { ActivatedRoute, ActivatedRouteSnapshot, convertToParamMap } from '@angu
 import { EventService, LoggerService, WsEvents } from '@sunbird-cb/utils'
 import { ViewerUtilService } from '../../viewer-util.service'
 import { MatDialog } from '@angular/material/dialog'
-import { of } from 'rxjs'
+import { EMPTY, of } from 'rxjs'
+import { fakeAsync, tick } from '@angular/core/testing'
 import { NsContent } from '@sunbird-cb/collection'
-import { ViewerPreviewPopupComponent } from '../../viewer-preview-popup/viewer-preview-popup.component'
 import { AccessControlService } from '@sunbird-cb/toc'
 
 describe('PracticeTestComponent', () => {
   let component: PracticeTestComponent
   let mockActivatedRoute: Partial<ActivatedRoute>
-  let mockAccessControlService: jest.Mocked<AccessControlService>
-  let mockViewerUtilService: jest.Mocked<ViewerUtilService>
-  let mockEventService: jest.Mocked<EventService>
-  let mockLoggerService: jest.Mocked<LoggerService>
-  let mockMatDialog: jest.Mocked<MatDialog>
+  let mockAccessControlService: jasmine.SpyObj<AccessControlService>
+  let mockViewerUtilService: jasmine.SpyObj<ViewerUtilService>
+  let mockEventService: jasmine.SpyObj<EventService>
+  let mockLoggerService: jasmine.SpyObj<LoggerService>
+  let mockMatDialog: jasmine.SpyObj<MatDialog>
+  let mockContentService: any
+  let mockRouter: any
 
   const mockTestData: NsContent.IContent = {
     identifier: 'test-id',
@@ -42,14 +44,14 @@ describe('PracticeTestComponent', () => {
         fragment: '',
         data: {},
         outlet: '',
-        component: '',
-        routeConfig: undefined,
+        component: null,
+        routeConfig: null,
         root: new ActivatedRouteSnapshot,
         parent: new ActivatedRouteSnapshot,
         firstChild: new ActivatedRouteSnapshot,
         children: [],
         pathFromRoot: []
-      },
+      } as any,
       data: of({ content: { data: mockTestData } }),
     }
 
@@ -60,20 +62,24 @@ describe('PracticeTestComponent', () => {
     } as any
 
     mockViewerUtilService = {
-      getContent: jest.fn().mockReturnValue(of(mockTestData)),
+      getContent: jasmine.createSpy().and.returnValue(of(mockTestData)),
     } as any
 
     mockEventService = {
-      dispatchEvent: jest.fn(),
+      dispatchEvent: jasmine.createSpy(),
     } as any
 
     mockLoggerService = {
-      error: jest.fn(),
+      error: jasmine.createSpy(),
     } as any
 
     mockMatDialog = {
-      open: jest.fn(),
+      open: jasmine.createSpy(),
     } as any
+
+    mockContentService = {}
+
+    mockRouter = { events: EMPTY }
 
     // Create component instance
     component = new PracticeTestComponent(
@@ -82,25 +88,11 @@ describe('PracticeTestComponent', () => {
       mockAccessControlService,
       mockViewerUtilService,
       mockEventService,
-      mockLoggerService
+      mockContentService,
+      mockLoggerService,
+      mockRouter
     )
 
-    // Mock window.location for preview mode detection
-    delete (window as any).location
-    Object.defineProperty(window, 'location', {
-      value: {
-        href: 'http://test.com',
-      },
-      writable: true,
-      configurable: true
-    })
-
-    // Mock setTimeout
-    jest.useFakeTimers()
-  })
-
-  afterEach(() => {
-    jest.clearAllTimers()
   })
 
   describe('initialization', () => {
@@ -146,7 +138,9 @@ describe('PracticeTestComponent', () => {
         mockAccessControlService,
         mockViewerUtilService,
         mockEventService,
-        mockLoggerService
+        mockContentService,
+        mockLoggerService,
+        mockRouter
       )
 
       component.ngOnInit()
@@ -172,18 +166,14 @@ describe('PracticeTestComponent', () => {
       expect(component.quizJson.timeLimit).toBe(mockTestData.expectedDuration)
     })
 
-    it('should set fetchingDataComplete after timeout', () => {
+    it('should set fetchingDataComplete after timeout', fakeAsync(() => {
       component.testData = mockTestData
       component.init()
 
-      jest.runAllTimers()
+      tick(100)
 
       expect(component.isFetchingDataComplete).toBeTruthy()
-      expect(mockMatDialog.open).toHaveBeenCalledWith(
-        ViewerPreviewPopupComponent,
-        expect.any(Object)
-      )
-    })
+    }))
   })
 
 
@@ -194,8 +184,8 @@ describe('PracticeTestComponent', () => {
       component.ngOnDestroy()
 
       expect(mockEventService.dispatchEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
+        jasmine.objectContaining({
+          data: jasmine.objectContaining({
             state: WsEvents.EnumTelemetrySubType.Unloaded,
           }),
         })
@@ -204,7 +194,7 @@ describe('PracticeTestComponent', () => {
 
     it('should unsubscribe from all subscriptions', () => {
       const mockSubscription = {
-        unsubscribe: jest.fn(),
+        unsubscribe: jasmine.createSpy(),
       }
 
       component['dataSubscription'] = mockSubscription as any

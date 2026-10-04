@@ -52,6 +52,11 @@ describe('AssignmentViewerComponent', () => {
     )
   })
 
+  afterEach(() => {
+    jest.useRealTimers()
+    jest.restoreAllMocks()
+  })
+
   it('should create component', () => {
     expect(component).toBeTruthy()
   })
@@ -94,6 +99,7 @@ describe('AssignmentViewerComponent', () => {
   })
 
   it('should catch error in processDocumentUrl()', () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { })
     component.documentType = 'pdf'
     mockSanitizer.bypassSecurityTrustResourceUrl.mockImplementation(() => {
       throw new Error('Mock error')
@@ -121,7 +127,7 @@ describe('AssignmentViewerComponent', () => {
 
   it('should handle error in submitAssignment()', () => {
     mockTocSvc.submitAssignment.mockReturnValue({
-      subscribe: (error: any) => error('Some error'),
+      subscribe: (_success: any, error: any) => error('Some error'),
     })
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { })
     component.submitAssignment()
@@ -166,7 +172,11 @@ describe('AssignmentViewerComponent', () => {
   it('should handle ngAfterViewInit() with iframe but no access', () => {
     const nativeElement: any = {
       contentDocument: undefined,
-      contentWindow: { document: { createElement: jest.fn().mockReturnValue({}), head: { appendChild: jest.fn() } } },
+      contentWindow: {
+        get document() {
+          throw new Error('SecurityError')
+        },
+      },
     }
     component.docIframe = { nativeElement } as any
     const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => { })

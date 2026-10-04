@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { DbmsConceptCreateComponent } from './dbms-concept-create.component'
 
@@ -6,7 +6,7 @@ describe('DbmsConceptCreateComponent', () => {
   let component: DbmsConceptCreateComponent
   let fixture: ComponentFixture<DbmsConceptCreateComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [DbmsConceptCreateComponent],
     })

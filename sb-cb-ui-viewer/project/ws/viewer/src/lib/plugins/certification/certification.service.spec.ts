@@ -9,7 +9,7 @@ describe('CertificationService', () => {
 
   beforeEach(() => {
     mockHttpClient = {
-      post: jest.fn().mockReturnValue(of(null)),
+      post: jasmine.createSpy().and.returnValue(of(null)),
     } as unknown as HttpClient
 
     service = new CertificationService(mockHttpClient)
@@ -27,7 +27,7 @@ describe('CertificationService', () => {
 
     it('should return the result of the http.post call', () => {
       const mockResponse = { result: {} }
-      mockHttpClient.post = jest.fn().mockReturnValue(of(mockResponse))
+      mockHttpClient.post = jasmine.createSpy().and.returnValue(of(mockResponse))
 
     })
   })

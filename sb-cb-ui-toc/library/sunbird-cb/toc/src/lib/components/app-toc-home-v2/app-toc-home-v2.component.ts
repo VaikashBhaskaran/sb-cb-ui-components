@@ -14,9 +14,9 @@ import { catchError, share, switchMap, takeUntil } from 'rxjs/operators'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
 import _ from 'lodash'
-dayjs.extend(isSameOrBefore)
 import moment from 'moment'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+dayjs.extend(isSameOrBefore)
 
 import { NsContent } from '../../_services/widget-content.model'
 import { WidgetContentService } from '../../_services/widget-content.service'

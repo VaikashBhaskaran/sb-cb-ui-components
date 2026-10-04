@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { DbmsConceptDropdownComponent } from './dbms-concept-dropdown.component'
 
@@ -6,7 +6,7 @@ describe('DbmsConceptDropdownComponent', () => {
   let component: DbmsConceptDropdownComponent
   let fixture: ComponentFixture<DbmsConceptDropdownComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [DbmsConceptDropdownComponent],
     })

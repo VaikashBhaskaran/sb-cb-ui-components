@@ -1,7 +1,9 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { RouterTestingModule } from '@angular/router/testing'
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
 
 import { QuizComponent } from './quiz.component'
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 
 describe('QuizComponent', () => {
   let component: QuizComponent
@@ -9,8 +11,12 @@ describe('QuizComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [CUSTOM_ELEMENTS_SCHEMA],
       declarations: [QuizComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule],
+      providers: [
+        { provide: 'environment', useValue: {} },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
       .compileComponents()
   }))

@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
+import { MatCardModule } from '@angular/material/card'
+import { MatIconModule } from '@angular/material/icon'
 
 import { RestrictedComponent } from './restricted.component'
 
@@ -8,6 +10,7 @@ describe('RestrictedComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
+      imports: [MatCardModule, MatIconModule],
       declarations: [RestrictedComponent],
     })
     .compileComponents()

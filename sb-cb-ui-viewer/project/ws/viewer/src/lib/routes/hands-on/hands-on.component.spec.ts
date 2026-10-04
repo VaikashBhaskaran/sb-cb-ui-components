@@ -10,7 +10,7 @@ describe('HandsOnComponent', () => {
     let component: HandsOnComponent
 
     const mockEventSvc: Partial<EventService> = {
-        dispatchEvent: jest.fn(),
+        dispatchEvent: jasmine.createSpy(),
     }
 
     const mockActivatedRoute: Partial<ActivatedRoute> = {
@@ -33,33 +33,35 @@ describe('HandsOnComponent', () => {
             fragment: '',
             data: {},
             outlet: '',
-            component: '',
-            routeConfig: undefined,
+            component: null,
+            routeConfig: null,
             root: new ActivatedRouteSnapshot,
             parent: new ActivatedRouteSnapshot,
             firstChild: new ActivatedRouteSnapshot,
             children: [],
             pathFromRoot: [],
-            paramMap: undefined,
-            queryParamMap: undefined
-        },
+            paramMap: undefined as any,
+            queryParamMap: undefined as any
+        } as any,
     }
 
     const mockContentSvc: Partial<WidgetContentService> = {
-        continueLearning: jest.fn().mockResolvedValue(undefined),
-        setS3Cookie: jest.fn().mockReturnValue(of({})),
+        continueLearning: jasmine.createSpy().and.resolveTo(undefined),
+        setS3Cookie: jasmine.createSpy().and.returnValue(of({})),
     }
 
     const mockHttp: Partial<HttpClient> = {
-        get: jest.fn().mockReturnValue(of({ manifestData: 'test' })),
+        get: jasmine.createSpy().and.returnValue(of({ manifestData: 'test' })),
     }
 
     const mockViewSvc: Partial<ViewerUtilService> = {
-        getAuthoringUrl: jest.fn().mockReturnValue('test-author-url'),
+        getAuthoringUrl: jasmine.createSpy().and.returnValue('test-author-url'),
     }
 
     beforeEach(() => {
-        jest.clearAllMocks()
+        // the mocks are shared across tests, so clear their call history
+        [mockEventSvc, mockContentSvc, mockHttp, mockViewSvc].forEach(mock =>
+            Object.values(mock).forEach(fn => jasmine.isSpy(fn) && (fn as jasmine.Spy).calls.reset()))
         component = new HandsOnComponent(
             mockEventSvc as EventService,
             mockActivatedRoute as ActivatedRoute,
@@ -98,7 +100,7 @@ describe('HandsOnComponent', () => {
         })
 
         it('should handle error when manifest fetch fails', async () => {
-            mockHttp.get = jest.fn().mockReturnValue(of(null))
+            mockHttp.get = jasmine.createSpy().and.returnValue(of(null))
             await component.ngOnInit()
             expect(component.isErrorOccured).toBe(false)
         })
@@ -128,9 +130,9 @@ describe('HandsOnComponent', () => {
         it('should raise unload event', async () => {
             await component.ngOnDestroy()
             expect(mockEventSvc.dispatchEvent).toHaveBeenCalledWith(
-                expect.objectContaining({
+                jasmine.objectContaining({
                     eventType: WsEvents.WsEventType.Telemetry,
-                    data: expect.objectContaining({
+                    data: jasmine.objectContaining({
                         state: WsEvents.EnumTelemetrySubType.Unloaded,
                     }),
                 })
@@ -169,8 +171,8 @@ describe('HandsOnComponent', () => {
             component.raiseEvent(WsEvents.EnumTelemetrySubType.Loaded, null as any)
 
             expect(mockEventSvc.dispatchEvent).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    data: expect.objectContaining({
+                jasmine.objectContaining({
+                    data: jasmine.objectContaining({
                         identifier: null,
                         url: null,
                     }),

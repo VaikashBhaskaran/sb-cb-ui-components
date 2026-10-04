@@ -49,6 +49,7 @@
     "@angular/cli": "^20.3.14",
     "@angular/compiler-cli": "^20.3.16",
     "@angular/language-service": "^20.3.16",
+    "@angular/localize": "^20.3.16",
     "@types/jasmine": "~3.6.0",
     "@types/jasminewd2": "~2.0.6",
     "@types/mustache": "^0.8.32",

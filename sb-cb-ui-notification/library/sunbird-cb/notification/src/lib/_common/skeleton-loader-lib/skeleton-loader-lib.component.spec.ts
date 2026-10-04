@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
-import { SkeletonLoaderComponent } from './skeleton-loader-lib.component'
+import { SkeletonLoaderLibComponent } from './skeleton-loader-lib.component'
 
-describe('SkeletonLoaderComponent', () => {
-  let component: SkeletonLoaderComponent
-  let fixture: ComponentFixture<SkeletonLoaderComponent>
+describe('SkeletonLoaderLibComponent', () => {
+  let component: SkeletonLoaderLibComponent
+  let fixture: ComponentFixture<SkeletonLoaderLibComponent>
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [SkeletonLoaderComponent],
+      declarations: [SkeletonLoaderLibComponent],
     })
     .compileComponents()
   }))
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SkeletonLoaderComponent)
+    fixture = TestBed.createComponent(SkeletonLoaderLibComponent)
     component = fixture.componentInstance
     fixture.detectChanges()
   })

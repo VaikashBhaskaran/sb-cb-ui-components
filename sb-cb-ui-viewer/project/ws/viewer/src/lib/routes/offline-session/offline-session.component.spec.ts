@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { OfflineSessionComponent } from './offline-session.component'
 
@@ -6,7 +6,7 @@ describe('OfflineSessionComponent', () => {
   let component: OfflineSessionComponent
   let fixture: ComponentFixture<OfflineSessionComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [OfflineSessionComponent],
     })

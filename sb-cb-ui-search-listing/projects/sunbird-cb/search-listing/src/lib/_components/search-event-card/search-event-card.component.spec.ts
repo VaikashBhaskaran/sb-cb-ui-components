@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
 import { SearchEventCardComponent } from './search-event-card.component';
+import { SearchListingService } from '../../_services/search-listing.service';
+import { SearchListingConfig } from '../../_models/search-listing.model';
 
 describe('SearchEventCardComponent', () => {
   let component: SearchEventCardComponent;
@@ -11,6 +13,7 @@ describe('SearchEventCardComponent', () => {
   let mockTranslateService: jest.Mocked<TranslateService>;
   let mockLangTranslations: jest.Mocked<MultilingualTranslationsService>;
   let mockDatePipe: jest.Mocked<DatePipe>;
+  let mockSearchListingService: jest.Mocked<SearchListingService>;
 
   beforeEach(() => {
     // Create mocks for all dependencies
@@ -30,6 +33,10 @@ describe('SearchEventCardComponent', () => {
     mockDatePipe = {
       transform: jest.fn(),
     } as unknown as jest.Mocked<DatePipe>;
+
+    mockSearchListingService = {
+      searchConfig: {},
+    } as unknown as jest.Mocked<SearchListingService>;
 
     // Mock localStorage
     const localStorageMock = (() => {
@@ -51,7 +58,8 @@ describe('SearchEventCardComponent', () => {
       mockRouter,
       mockTranslateService,
       mockLangTranslations,
-      mockDatePipe
+      mockDatePipe,
+      mockSearchListingService
     );
 
     // Set default properties
@@ -78,7 +86,8 @@ describe('SearchEventCardComponent', () => {
         mockRouter,
         mockTranslateService,
         mockLangTranslations,
-        mockDatePipe
+        mockDatePipe,
+        mockSearchListingService
       );
 
       // Assert
@@ -95,7 +104,8 @@ describe('SearchEventCardComponent', () => {
         mockRouter,
         mockTranslateService,
         mockLangTranslations,
-        mockDatePipe
+        mockDatePipe,
+        mockSearchListingService
       );
 
       // Assert
@@ -372,6 +382,7 @@ describe('SearchEventCardComponent', () => {
   describe('navigateToEvent', () => {
     it('should navigate to event detail page when identifier is present', () => {
       // Arrange
+      mockSearchListingService.searchConfig = { applicationName: SearchListingConfig.ApplicationNames.LearnerPortal } as any;
       component.content = { identifier: 'event123' };
       
       // Act
@@ -394,6 +405,7 @@ describe('SearchEventCardComponent', () => {
 
     it('should navigate to event detail page and emit telemetry when identifier is present', () => {
       // Arrange
+      mockSearchListingService.searchConfig = { applicationName: SearchListingConfig.ApplicationNames.LearnerPortal } as any;
       component.content = { identifier: 'event123', contentType: '' };
       const telemetrySpy = jest.spyOn(component.telemetry, 'emit');
 

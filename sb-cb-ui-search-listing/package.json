@@ -18,15 +18,20 @@
   "jest": {
     "preset": "jest-preset-angular",
     "setupFilesAfterEnv": [
-      "<rootDir>/library/sunbird-cb/access-settings/setup.jest.ts"
+      "<rootDir>/projects/sunbird-cb/search-listing/setup.jest.ts"
     ],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules/",
       "<rootDir>/dist/"
     ],
+    "moduleNameMapper": {
+      "^ckeditor5$": "<rootDir>/projects/sunbird-cb/search-listing/src/test-mocks/ckeditor5.ts",
+      "^@ckeditor/ckeditor5-angular$": "<rootDir>/projects/sunbird-cb/search-listing/src/test-mocks/ckeditor5-angular.ts",
+      "^jspdf$": "<rootDir>/node_modules/jspdf/dist/jspdf.node.min.js"
+    },
     "globals": {
       "ts-jest": {
-        "tsConfig": "<rootDir>/library/sunbird-cb/access-settings/tsconfig.spec.json",
+        "tsConfig": "<rootDir>/projects/sunbird-cb/search-listing/tsconfig.spec.json",
         "stringifyContentPathRegex": "\\.html$"
       }
     },
@@ -34,7 +39,7 @@
       "^.+\\.(ts|js|html)$": [
         "jest-preset-angular",
         {
-          "tsconfig": "<rootDir>/library/sunbird-cb/access-settings/tsconfig.spec.json",
+          "tsconfig": "<rootDir>/projects/sunbird-cb/search-listing/tsconfig.spec.json",
           "stringifyContentPathRegex": "\\.html$"
         }
       ]
@@ -51,6 +56,7 @@
     "@angular/platform-browser": "^20.3.16",
     "@angular/platform-browser-dynamic": "^20.3.16",
     "@angular/router": "^20.3.16",
+    "@ckeditor/ckeditor5-angular": "^9.1.0",
     "@ngx-translate/core": "^15.0.0",
     "@ngx-translate/http-loader": "8.0.0",
     "@sunbird-cb/collection": "0.0.9-ang-17-20",
@@ -59,6 +65,7 @@
     "@sunbird-cb/resolver-v2": "0.0.1-ang-17-20",
     "@sunbird-cb/utils-v2": "0.0.5-ang-17-20",
     "@types/ckeditor": "^4.9.10",
+    "ckeditor5": "^43.1.0",
     "dayjs": "^1.11.21",
     "jspdf": "^4.2.1",
     "moment": "^2.29.1",
@@ -67,7 +74,8 @@
     "rxjs": "^6.6.6",
     "tslib": "^2.3.0",
     "uuid": "^10.0.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zone.js": "~0.15.1"
   },
   "devDependencies": {
     "@angular/build": "^20.3.14",

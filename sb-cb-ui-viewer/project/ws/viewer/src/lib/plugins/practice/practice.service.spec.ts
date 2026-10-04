@@ -5,12 +5,12 @@ import { NSPractice } from './practice.model'
 
 describe('PracticeService', () => {
   let service: PracticeService
-  let httpClientMock: jest.Mocked<HttpClient>
+  let httpClientMock: jasmine.SpyObj<HttpClient>
 
   beforeEach(() => {
     httpClientMock = {
-      post: jest.fn(),
-      get: jest.fn(),
+      post: jasmine.createSpy(),
+      get: jasmine.createSpy(),
     } as any
 
     service = new PracticeService(httpClientMock)
@@ -58,7 +58,7 @@ describe('PracticeService', () => {
       const postData = { data: 'test' }
       const mockResponse = { success: true }
 
-      httpClientMock.post.mockReturnValue(of(mockResponse))
+      httpClientMock.post.and.returnValue(of(mockResponse))
 
       service.getSection(sectionId, true, postData).subscribe(response => {
         expect(response).toEqual(mockResponse)
@@ -74,7 +74,7 @@ describe('PracticeService', () => {
       const sectionId = 'section1'
       const mockResponse = { success: true }
 
-      httpClientMock.get.mockReturnValue(of(mockResponse))
+      httpClientMock.get.and.returnValue(of(mockResponse))
 
       service.getSection(sectionId, false).subscribe(response => {
         expect(response).toEqual(mockResponse)
@@ -115,7 +115,7 @@ describe('PracticeService', () => {
         }
       }
 
-      httpClientMock.get.mockReturnValue(of(mockResponse))
+      httpClientMock.get.and.returnValue(of(mockResponse))
 
       service.canAttend(identifier).subscribe(response => {
         expect(response).toEqual(mockResponse.result)

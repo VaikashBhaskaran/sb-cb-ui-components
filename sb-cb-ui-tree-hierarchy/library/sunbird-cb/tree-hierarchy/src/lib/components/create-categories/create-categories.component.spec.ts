@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { MaterialModule } from '../../../material.module';
 
 import { CreateCategoriesComponent } from './create-categories.component';
 
@@ -8,7 +10,9 @@ describe('CreateCategoriesComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CreateCategoriesComponent ]
+      imports: [ MaterialModule ],
+      declarations: [ CreateCategoriesComponent ],
+      providers: [ provideNoopAnimations() ]
     })
     .compileComponents();
   }));

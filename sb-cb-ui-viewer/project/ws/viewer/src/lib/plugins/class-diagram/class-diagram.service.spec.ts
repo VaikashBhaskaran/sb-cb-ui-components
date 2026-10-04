@@ -5,11 +5,11 @@ import { NSClassDiagram } from './class-diagram.model'
 
 describe('ClassDiagramService', () => {
   let service: ClassDiagramService
-  let httpClientMock: jest.Mocked<HttpClient>
+  let httpClientMock: jasmine.SpyObj<HttpClient>
 
   beforeEach(() => {
     httpClientMock = {
-      post: jest.fn()
+      post: jasmine.createSpy()
     } as any
 
     service = new ClassDiagramService(httpClientMock)
@@ -25,10 +25,10 @@ describe('ClassDiagramService', () => {
     const mockApiResponse: NSClassDiagram.IClassDiagramApiResponse = {
       submitResult: undefined,
       verifyResult: undefined
-    }
+    } as any
 
     // Mock the http.post method to return an observable with mock response
-    httpClientMock.post.mockReturnValue(of(mockApiResponse))
+    httpClientMock.post.and.returnValue(of(mockApiResponse))
 
     service.submitClassDiagram({
       userSolution: mockUserSolution,

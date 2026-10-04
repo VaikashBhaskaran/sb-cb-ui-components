@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { AppTocAnalyticsTilesComponent } from './app-toc-analytics-tiles.component'
 
@@ -6,7 +6,7 @@ describe('AppTocAnalyticsTilesComponent', () => {
   let component: AppTocAnalyticsTilesComponent
   let fixture: ComponentFixture<AppTocAnalyticsTilesComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AppTocAnalyticsTilesComponent],
     })

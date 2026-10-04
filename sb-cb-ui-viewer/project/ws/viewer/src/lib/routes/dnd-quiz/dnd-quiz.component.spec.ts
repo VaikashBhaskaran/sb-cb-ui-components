@@ -28,12 +28,12 @@ describe('DndQuizComponent', () => {
     }
 
     mockContentSvc = {
-      continueLearning: jest.fn().mockResolvedValue(undefined),
-      setS3Cookie: jest.fn().mockReturnValue(of({}))
+      continueLearning: jasmine.createSpy().and.resolveTo(undefined),
+      setS3Cookie: jasmine.createSpy().and.returnValue(of({}))
     }
 
     mockHttp = {
-      get: jest.fn().mockReturnValue(of({}))
+      get: jasmine.createSpy().and.returnValue(of({}))
     }
 
     mockValueSvc = {
@@ -41,11 +41,11 @@ describe('DndQuizComponent', () => {
     }
 
     mockEventSvc = {
-      dispatchEvent: jest.fn()
+      dispatchEvent: jasmine.createSpy()
     }
 
     mockViewSvc = {
-      getAuthoringUrl: jest.fn().mockReturnValue('test-author-url')
+      getAuthoringUrl: jasmine.createSpy().and.returnValue('test-author-url')
     }
 
     // Initialize component with mocks
@@ -59,10 +59,6 @@ describe('DndQuizComponent', () => {
     )
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
-  })
-
   describe('ngOnInit', () => {
     it('should subscribe to isLtMedium$ and update isLtMedium', () => {
       component.ngOnInit()
@@ -72,14 +68,14 @@ describe('DndQuizComponent', () => {
 
     it('should handle content data successfully', async () => {
       const manifestData = { test: 'data' }
-      mockHttp.get.mockReturnValue(of(manifestData))
+      mockHttp.get.and.returnValue(of(manifestData))
 
       component.ngOnInit()
       await mockActivatedRoute.data.next({
         content: { data: mockContent }
       })
 
-      expect(component.dndQuizData).toBe(mockContent)
+      expect(component.dndQuizData).toBe(mockContent as any)
       expect(component.isFetchingDataComplete).toBe(false)
       expect(component.isErrorOccured).toBe(false)
     })
@@ -130,7 +126,7 @@ describe('DndQuizComponent', () => {
     it('should handle errors silently', async () => {
 
       // Should not throw error
-      await expect(component['setS3Cookie']('test-id')).resolves.toBeUndefined()
+      await expectAsync(component['setS3Cookie']('test-id')).toBeResolvedTo(undefined)
     })
   })
 })

@@ -8,10 +8,10 @@ import { takeUntil } from 'rxjs/operators'
 // tslint:disable-next-line
 import * as _ from 'lodash'
 import dayjs from 'dayjs'
-dayjs.extend(isSameOrBefore)
-dayjs.extend(isSameOrAfter)
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+dayjs.extend(isSameOrBefore)
+dayjs.extend(isSameOrAfter)
 
 import { NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 import { NsContent } from '../../../../_services/widget-content.model'

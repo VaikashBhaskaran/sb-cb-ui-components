@@ -20,8 +20,12 @@
     ],
     "testPathIgnorePatterns": [
       "<rootDir>/node_modules/",
-      "<rootDir>/dist/"
+      "<rootDir>/dist/",
+      "<rootDir>/library/sunbird-cb/toc/src/test.ts"
     ],
+    "moduleNameMapper": {
+      "^ckeditor5$": "<rootDir>/library/sunbird-cb/toc/src/test-mocks/ckeditor5.ts"
+    },
     "globals": {
       "ts-jest": {
         "tsConfig": "<rootDir>/library/sunbird-cb/toc/tsconfig.spec.json",
@@ -77,13 +81,16 @@
     "rxjs": "^6.6.6",
     "rxjs-compat": "^6.6.6",
     "ng2-ckeditor": "^1.2.6",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "zone.js": "~0.15.1"
   },
   "devDependencies": {
     "@angular/build": "^20.3.25",
     "@angular/cli": "^20.3.25",
     "@angular/compiler-cli": "^20.3.19",
     "@angular/language-service": "^20.3.19",
+    "@angular/localize": "^20.3.19",
+    "@project-sunbird/telemetry-sdk": "^2.0.1",
     "@types/jasmine": "~3.6.0",
     "@types/jasminewd2": "~2.0.6",
     "@types/jest": "^29.5.14",
@@ -92,6 +99,7 @@
     "@types/node": "^12.11.1",
     "@types/uuid": "^8.3.4",
     "angular-cli-alias": "^1.0.9",
+    "axios": "^0.22.0",
     "@types/ckeditor": "^4.9.10",
     "codelyzer": "^6.0.0",
     "jasmine-core": "~3.6.0",
@@ -111,6 +119,7 @@
     "tslint-config-airbnb": "^5.11.1",
     "typescript": "~5.8.3",
     "typescript-tslint-plugin": "^0.5.4",
-    "webpack-bundle-analyzer": "^3.4.1"
+    "webpack-bundle-analyzer": "^3.4.1",
+    "xlsx": "^0.16.1"
   }
 }

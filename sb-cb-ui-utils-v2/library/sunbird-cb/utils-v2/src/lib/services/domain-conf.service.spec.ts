@@ -113,7 +113,7 @@ describe('DomainConfService', () => {
 
     it('returns the defaults when the tenant has no entry', () => {
       withRegistry({ 'other-portal': { logo: '/other.png' } })
-      expect(service.getTenantConfig().logo).toBe(service.defaultLogo)
+      expect(service.getTenantConfig().logo).toBe(environment.logo)
     })
 
     it('ignores empty registry values instead of blanking a default', () => {

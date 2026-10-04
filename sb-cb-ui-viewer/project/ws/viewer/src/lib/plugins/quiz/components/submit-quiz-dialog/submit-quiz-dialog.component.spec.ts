@@ -1,8 +1,10 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { RouterTestingModule } from '@angular/router/testing'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
 
 import { SubmitQuizDialogComponent } from './submit-quiz-dialog.component'
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 
 describe('SubmitQuizDialogComponent', () => {
   let component: SubmitQuizDialogComponent
@@ -11,10 +13,13 @@ describe('SubmitQuizDialogComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SubmitQuizDialogComponent],
-      imports: [CUSTOM_ELEMENTS_SCHEMA],
-      providers: [{ provide: MAT_DIALOG_DATA, useValue: {} },
-      { provide: MatDialogRef, useValue: {} },
+      imports: [HttpClientTestingModule, RouterTestingModule],
+      providers: [
+        { provide: MatDialogRef, useValue: { close: () => {} } },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: 'environment', useValue: {} },
       ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
       .compileComponents()
   }))

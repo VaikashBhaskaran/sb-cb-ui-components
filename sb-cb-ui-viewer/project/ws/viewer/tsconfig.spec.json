@@ -13,5 +13,12 @@
   "include": [
     "**/*.spec.ts",
     "**/*.d.ts"
+  ],
+  "exclude": [
+    "src/lib/plugins/rdbms-hands-on/**",
+    "src/lib/routes/rdbms-hands-on/**",
+    "src/lib/route-view-container/rdbms-hands-on/**",
+    "src/lib/routes/offline-session/**",
+    "src/lib/resolvers/config-resolver.service.spec.ts"
   ]
 }

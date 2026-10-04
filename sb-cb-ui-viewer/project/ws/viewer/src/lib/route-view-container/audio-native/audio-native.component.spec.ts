@@ -1,6 +1,6 @@
 import { AudioNativeComponent } from './audio-native.component'
 import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router'
-import { ConfigurationsService } from '@sunbird-cb/utils'
+import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { NsContent } from '@sunbird-cb/collection'
 
 describe('AudioNativeComponent', () => {
@@ -59,16 +59,16 @@ describe('AudioNativeComponent', () => {
         fragment: '',
         data: {},
         outlet: '',
-        component: '',
-        routeConfig: undefined,
+        component: null,
+        routeConfig: null,
         root: new ActivatedRouteSnapshot(),
         parent: new ActivatedRouteSnapshot(),
         firstChild: new ActivatedRouteSnapshot(),
         children: [],
         pathFromRoot: [],
-        paramMap: undefined,
-        queryParamMap: undefined
-      }
+        paramMap: undefined as any,
+        queryParamMap: undefined as any
+      } as any
     }
 
     mockConfigService = {
@@ -145,7 +145,7 @@ describe('AudioNativeComponent', () => {
       component.audioData = mockAudioData
       expect(component.audioData).toEqual(mockAudioData)
       expect(component.audioData?.mediaType).toBe('audio')
-      expect(component.audioData?.contentType).toBe('Program')
+      expect(component.audioData?.contentType).toBe(NsContent.EContentTypes.PROGRAM)
     })
 
 

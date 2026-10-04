@@ -6,20 +6,21 @@ import { PracticeService } from '../../practice.service'
 import { NSPractice } from '../../practice.model'
 
 describe('QuestionComponent', () => {
+  let innerWidthSpy: jasmine.Spy
   let component: QuestionComponent
-  let practiceServiceMock: jest.Mocked<PracticeService>
-  let snackBarMock: jest.Mocked<MatSnackBar>
+  let practiceServiceMock: jasmine.SpyObj<PracticeService>
+  let snackBarMock: jasmine.SpyObj<MatSnackBar>
 
   beforeEach(() => {
     // Mock PracticeService
     practiceServiceMock = {
       questionAnswerHash: new BehaviorSubject<any>({}),
-      shCorrectAnswer: jest.fn(),
+      shCorrectAnswer: jasmine.createSpy(),
     } as any
 
     // Mock MatSnackBar
     snackBarMock = {
-      open: jest.fn(),
+      open: jasmine.createSpy(),
     } as any
 
     // Create component instance
@@ -29,18 +30,18 @@ describe('QuestionComponent', () => {
     )
 
     // Set default window inner width
-    global.innerWidth = 1920
+    innerWidthSpy = spyOnProperty(window, 'innerWidth').and.returnValue(1920)
   })
 
   describe('ngOnInit', () => {
     it('should set isMobile to true when window width is <= 1200', () => {
-      global.innerWidth = 1000
+      innerWidthSpy.and.returnValue(1000)
       component.ngOnInit()
       expect(component.isMobile).toBe(true)
     })
 
     it('should set isMobile to false when window width is > 1200', () => {
-      global.innerWidth = 1920
+      innerWidthSpy.and.returnValue(1920)
       component.ngOnInit()
       expect(component.isMobile).toBe(false)
     })
@@ -74,7 +75,7 @@ describe('QuestionComponent', () => {
 
   describe('ngOnChanges', () => {
     it('should call init when questionNumber changes', () => {
-      const initSpy = jest.spyOn(component, 'init')
+      const initSpy = spyOn(component, 'init').and.callThrough()
       const changes: SimpleChanges = {
         questionNumber: new SimpleChange(1, 2, false)
       }
@@ -85,7 +86,7 @@ describe('QuestionComponent', () => {
     })
 
     it('should call init when itemSelectedList changes', () => {
-      const initSpy = jest.spyOn(component, 'init')
+      const initSpy = spyOn(component, 'init').and.callThrough()
       const changes: SimpleChanges = {
         itemSelectedList: new SimpleChange([], ['option1'], false)
       }
@@ -143,7 +144,7 @@ describe('QuestionComponent', () => {
     it('should emit getNextQuestion when compatibility level >= 7', () => {
       component.question.questionId = 'question123'
       component.selectedAssessmentCompatibilityLevel = 7
-      const emitSpy = jest.spyOn(component.getNextQuestion, 'emit')
+      const emitSpy = spyOn(component.getNextQuestion, 'emit').and.callThrough()
 
       component.markQuestion()
 
@@ -172,13 +173,13 @@ describe('QuestionComponent', () => {
 
   describe('openSnackbar', () => {
     it('should configure snackbar for mobile view', () => {
-      global.innerWidth = 1000
+      innerWidthSpy.and.returnValue(1000)
       component['openSnackbar']('Test message')
 
       expect(snackBarMock.open).toHaveBeenCalledWith(
         'Test message',
         '',
-        expect.objectContaining({
+        jasmine.objectContaining({
           verticalPosition: 'top',
           horizontalPosition: 'center'
         })
@@ -186,13 +187,13 @@ describe('QuestionComponent', () => {
     })
 
     it('should configure snackbar for desktop view', () => {
-      global.innerWidth = 1920
+      innerWidthSpy.and.returnValue(1920)
       component['openSnackbar']('Test message')
 
       expect(snackBarMock.open).toHaveBeenCalledWith(
         'Test message',
         '',
-        expect.objectContaining({
+        jasmine.objectContaining({
           panelClass: ['show-answer-alert-class']
         })
       )
@@ -201,7 +202,7 @@ describe('QuestionComponent', () => {
 
   describe('update', () => {
     it('should emit itemSelected event', () => {
-      const emitSpy = jest.spyOn(component.itemSelected, 'emit')
+      const emitSpy = spyOn(component.itemSelected, 'emit').and.callThrough()
       const event = { value: 'test' }
 
       component.update(event)
@@ -212,7 +213,7 @@ describe('QuestionComponent', () => {
 
   describe('clearResponse', () => {
     it('should emit clearQuestion event', () => {
-      const emitSpy = jest.spyOn(component.clearQuestion, 'emit')
+      const emitSpy = spyOn(component.clearQuestion, 'emit').and.callThrough()
 
       component.clearResponse()
 

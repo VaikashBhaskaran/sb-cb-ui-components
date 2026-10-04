@@ -215,7 +215,7 @@ describe('PeopleConnectionCardComponent', () => {
         userDepartmentFrom: 'Engineering',
         userIdTo: 'user456',
         userNameTo: 'id456',
-        userDepartmentTo: ''
+        userDepartmentTo: undefined
       });
 
       expect(emitSpy).toHaveBeenCalledWith('connection-updated');

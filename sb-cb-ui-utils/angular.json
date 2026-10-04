@@ -29,7 +29,8 @@
           "options": {
             "main": "library/sunbird-cb/utils/src/test.ts",
             "tsConfig": "library/sunbird-cb/utils/tsconfig.spec.json",
-            "karmaConfig": "library/sunbird-cb/utils/karma.conf.js"
+            "karmaConfig": "library/sunbird-cb/utils/karma.conf.js",
+            "polyfills": ["@angular/localize/init"]
           }
         }
       }

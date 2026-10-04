@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { DisplayContentTypeIconComponent } from './display-content-type-icon.component'
 
@@ -6,7 +6,7 @@ describe('DisplayContentTypeIconComponent', () => {
   let component: DisplayContentTypeIconComponent
   let fixture: ComponentFixture<DisplayContentTypeIconComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [DisplayContentTypeIconComponent],
     })

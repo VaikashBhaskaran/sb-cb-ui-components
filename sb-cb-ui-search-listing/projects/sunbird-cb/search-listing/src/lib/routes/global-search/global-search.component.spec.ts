@@ -1,7 +1,6 @@
 import { GlobalSearchComponent } from './global-search.component';
 import { ParamMap } from '@angular/router';
 import { of } from 'rxjs';
-import { environment } from 'src/environments/environment';
 
 describe('GlobalSearchComponent', () => {
   let component: GlobalSearchComponent;
@@ -10,7 +9,8 @@ describe('GlobalSearchComponent', () => {
   let mockConfigService: any;
   let mockRouter: any;
   let originalLocalStorage: Storage;
-  let originalEnvironment: any;
+  let mockSearchListingService: any;
+  let mockEnvironment: any;
 
   // Helper function to create paramMap from object
   const createParamMap = (params: any): ParamMap => {
@@ -22,19 +22,16 @@ describe('GlobalSearchComponent', () => {
     };
   };
 
-  // Store original localStorage and environment before tests
+  // Store original localStorage before tests
   beforeAll(() => {
     originalLocalStorage = global.localStorage;
-    originalEnvironment = environment;
   });
 
-  // Restore original localStorage and environment after tests
+  // Restore original localStorage after tests
   afterAll(() => {
     Object.defineProperty(global, 'localStorage', {
       value: originalLocalStorage
     });
-    // Make TypeScript happy by using a type assertion
-    (environment as any).compentencyVersionKey = originalEnvironment.compentencyVersionKey;
   });
 
   // Set up the mocks before each test
@@ -62,8 +59,10 @@ describe('GlobalSearchComponent', () => {
       value: localStorageMock
     });
 
-    // Mock environment
-    (environment as any).compentencyVersionKey = 'v3';
+    // Mock environment (injected via the 'environment' token)
+    mockEnvironment = {
+      compentencyVersionKey: 'v3'
+    };
 
     // Mock services
     mockTranslateService = {
@@ -87,12 +86,18 @@ describe('GlobalSearchComponent', () => {
       parent: {},
     };
 
+    mockSearchListingService = {
+      getSearchConfig: jest.fn().mockResolvedValue({ applicationName: 'Learner Portal' }),
+    };
+
     // Create component instance
     component = new GlobalSearchComponent(
+      mockEnvironment,
       mockActivatedRoute,
       mockTranslateService,
       mockConfigService,
-      mockRouter
+      mockRouter,
+      mockSearchListingService
     );
   });
 
@@ -107,10 +112,12 @@ describe('GlobalSearchComponent', () => {
     
     // Act
     component = new GlobalSearchComponent(
+      mockEnvironment,
       mockActivatedRoute,
       mockTranslateService,
       mockConfigService,
-      mockRouter
+      mockRouter,
+      mockSearchListingService
     );
     
     // Assert
@@ -125,10 +132,12 @@ describe('GlobalSearchComponent', () => {
     
     // Act
     component = new GlobalSearchComponent(
+      mockEnvironment,
       mockActivatedRoute,
       mockTranslateService,
       mockConfigService,
-      mockRouter
+      mockRouter,
+      mockSearchListingService
     );
     
     // Assert
@@ -136,17 +145,17 @@ describe('GlobalSearchComponent', () => {
     expect(mockTranslateService.use).not.toHaveBeenCalled();
   });
 
-  it('should set compentencyKey from configService', () => {
+  it('should set compentencyKey from configService', async () => {
     // Act
-    component.ngOnInit();
+    await component.ngOnInit();
     
     // Assert - Make sure environment is properly set up
-    expect(environment.compentencyVersionKey).toBe('v3');
+    expect(component.environment.compentencyVersionKey).toBe('v3');
     expect(mockConfigService.compentency.v3).toBeDefined();
     expect(component.compentencyKey).toBe(mockConfigService.compentency.v3);
   });
 
-  it('should update searchParam when query param "q" is present', () => {
+  it('should update searchParam when query param "q" is present', async () => {
     // Arrange
     mockActivatedRoute.queryParamMap = of(createParamMap({
       q: 'search-term',
@@ -155,7 +164,7 @@ describe('GlobalSearchComponent', () => {
     }));
 
     // Act
-    component.ngOnInit();
+    await component.ngOnInit();
 
     // Assert
     expect(component.searchParam).toEqual({
@@ -165,7 +174,7 @@ describe('GlobalSearchComponent', () => {
     });
   });
 
-  it('should update searchParam when query param "t" is present', () => {
+  it('should update searchParam when query param "t" is present', async () => {
     // Arrange
     mockActivatedRoute.queryParamMap = of(createParamMap({
       t: 'something',
@@ -174,7 +183,7 @@ describe('GlobalSearchComponent', () => {
     }));
 
     // Act
-    component.ngOnInit();
+    await component.ngOnInit();
 
     // Assert
     expect(component.searchParam).toEqual({
@@ -185,22 +194,23 @@ describe('GlobalSearchComponent', () => {
     expect(component.userValue).toBe('moderatedCourses');
   });
 
-  it('should update selectedTab when "tab" query param is present', () => {
+  it('should update selectedTab when "tab" query param is present', async () => {
     // Arrange
     mockActivatedRoute.queryParamMap = of(createParamMap({
       tab: 'Network'
     }));
 
     // Act
-    component.ngOnInit();
+    await component.ngOnInit();
 
     // Assert
     expect(component.selectedTab).toBe(2); // Index of 'Network' in the tabs array
   });
 
-  it('should set searchparamFilters when "f" query param is present', () => {
+  it('should set searchparamFilters when "f" query param is present', async () => {
     // Arrange
     const filterJSON = JSON.stringify({
+      primaryCategory: 'Course',
       contentType: ['Course'],
       'competencies_v3.name': ['comp1', 'comp2'],
       'topics': ['topic1', 'topic2']
@@ -211,41 +221,25 @@ describe('GlobalSearchComponent', () => {
     }));
 
     // Act
-    component.ngOnInit();
+    await component.ngOnInit();
 
     // Assert
     expect(component.searchparamFilters).toEqual([
       {
-        mainType: 'primaryCategory',
-        name: 'course',
-        count: '',
-        ischecked: true,
-      },
-      {
-        mainType: 'competencies_v3.name',
-        name: 'competencies_v3.name',
-        count: '',
-        values: ['comp1', 'comp2'],
-        ischecked: true,
-      },
-      {
-        mainType: 'topics',
-        name: 'topics',
-        count: '',
-        values: ['topic1', 'topic2'],
-        ischecked: true,
+        mainType: 'course',
+        subType: 'Course',
       },
     ]);
   });
 
-  it('should set filtersPanel when query param is present', () => {
+  it('should set filtersPanel when query param is present', async () => {
     // Arrange
     mockActivatedRoute.queryParamMap = of(createParamMap({
       filtersPanel: 'panel1'
     }));
 
     // Act
-    component.ngOnInit();
+    await component.ngOnInit();
 
     // Assert
     expect(component.filtersPanel).toBe('panel1');

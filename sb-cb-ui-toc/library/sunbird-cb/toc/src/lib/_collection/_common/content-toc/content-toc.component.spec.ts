@@ -1,4 +1,15 @@
 import { signal } from '@angular/core'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { provideHttpClient } from '@angular/common/http'
+import { provideHttpClientTesting } from '@angular/common/http/testing'
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router'
+import { MatDialogModule } from '@angular/material/dialog'
+import { MatTabsModule } from '@angular/material/tabs'
+import { provideNoopAnimations } from '@angular/platform-browser/animations'
+import { TranslateModule } from '@ngx-translate/core'
+import { of } from 'rxjs'
+import { HighlightPipe } from '../../../_pipes/highlight.pipe'
 
 import { ContentTocComponent } from './content-toc.component'
 
@@ -29,6 +40,7 @@ function createComponent(overrides: Record<string, any> = {}): any {
   const component: any = Object.create(ContentTocComponent.prototype)
   component.caPendingCourses = []
   component.breadcrumbData = signal<any[]>([])
+  component.caBreadcrumbs = signal<any[]>([])
   component.content = null
   component.contentReadData = null
   component.comprehensiveAssessmentSvc = {
@@ -114,7 +126,7 @@ describe('ContentTocComponent', () => {
 
       expect(component.breadcrumbData()).toEqual([
         { url: '/page/home', title: 'Home', icon: '' },
-        { url: '/page/home', title: 'APAR', icon: '' },
+        { url: '/app/plans', queryParams: { planType: 'apar' }, title: 'APAR', icon: '' },
         {
           url: '/app/plans/plan-1',
           queryParams: { planYear: '2026-27' },
@@ -179,6 +191,49 @@ describe('ContentTocComponent', () => {
 
       const crumbs = component.breadcrumbData()
       expect(crumbs[crumbs.length - 1]).toEqual({ url: '', title: CA_CATEGORY, icon: '' })
+    })
+  })
+
+  describe('TestBed', () => {
+    let component: ContentTocComponent
+    let fixture: ComponentFixture<ContentTocComponent>
+
+    beforeEach(waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [ContentTocComponent, HighlightPipe],
+        imports: [MatDialogModule, MatTabsModule, TranslateModule.forRoot()],
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideRouter([]),
+          provideNoopAnimations(),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              snapshot: { data: {}, params: {}, queryParams: {} },
+              data: of({}),
+              params: of({}),
+              queryParams: of({}),
+              queryParamMap: of(convertToParamMap({})),
+            },
+          },
+          { provide: 'environment', useValue: {} },
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      })
+      .compileComponents()
+    }))
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(ContentTocComponent)
+      component = fixture.componentInstance
+      component.content = {}
+      component.contentReadData = {}
+      fixture.detectChanges()
+    })
+
+    it('should create', () => {
+      expect(component).toBeTruthy()
     })
   })
 })

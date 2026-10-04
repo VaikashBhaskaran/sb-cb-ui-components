@@ -26,7 +26,8 @@
           "options": {
             "main": "library/sunbird-cb/notification/src/test.ts",
             "tsConfig": "library/sunbird-cb/notification/tsconfig.spec.json",
-            "karmaConfig": "library/sunbird-cb/notification/karma.conf.js"
+            "karmaConfig": "library/sunbird-cb/notification/karma.conf.js",
+            "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
       }

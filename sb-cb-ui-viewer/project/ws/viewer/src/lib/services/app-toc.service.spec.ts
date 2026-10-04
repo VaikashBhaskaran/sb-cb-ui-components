@@ -8,19 +8,19 @@
 import { HttpClient } from '@angular/common/http'
 import { AppTocService } from './app-toc.service'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { WidgetContentService } from '@ws-widget/collection'
+import { WidgetContentService } from '@sunbird-cb/collection'
 import { of } from 'rxjs'
 
 describe('AppTocService', () => {
   let service: AppTocService
-  let httpClientMock: jest.Mocked<HttpClient>
-  let configServiceMock: jest.Mocked<ConfigurationsService>
-  let widgetServiceMock: jest.Mocked<WidgetContentService>
+  let httpClientMock: jasmine.SpyObj<HttpClient>
+  let configServiceMock: jasmine.SpyObj<ConfigurationsService>
+  let widgetServiceMock: jasmine.SpyObj<WidgetContentService>
 
   beforeEach(() => {
     httpClientMock = {
-      get: jest.fn(),
-      post: jest.fn(),
+      get: jasmine.createSpy(),
+      post: jasmine.createSpy(),
     } as any
 
     configServiceMock = {
@@ -32,7 +32,7 @@ describe('AppTocService', () => {
     } as any
 
     widgetServiceMock = {
-      getFirstChildInHierarchy: jest.fn()
+      getFirstChildInHierarchy: jasmine.createSpy()
     } as any
 
     service = new AppTocService(
@@ -59,7 +59,7 @@ describe('AppTocService', () => {
   describe('fetchContentAnalyticsData', () => {
     it('should fetch analytics data and emit through subject', (done) => {
       const mockAnalyticsData = { data: 'test' }
-      httpClientMock.get.mockReturnValue(of(mockAnalyticsData))
+      httpClientMock.get.and.returnValue(of(mockAnalyticsData))
 
       service.analyticsReplaySubject.subscribe(data => {
         expect(data).toEqual(mockAnalyticsData)
@@ -75,7 +75,7 @@ describe('AppTocService', () => {
   describe('getServerDate', () => {
     it('should make HTTP GET request to server date endpoint', () => {
       const mockDate = { result: { serverTime: Date.now() } }
-      httpClientMock.get.mockReturnValue(of(mockDate))
+      httpClientMock.get.and.returnValue(of(mockDate))
 
       service.getServerDate()
 
@@ -88,12 +88,12 @@ describe('AppTocService', () => {
       const mockShareResponse = { result: true }
       const shareRequest = { contentId: 'test-content', users: ['user1'] }
 
-      httpClientMock.post.mockReturnValue(of(mockShareResponse))
+      httpClientMock.post.and.returnValue(of(mockShareResponse))
 
       service.shareContent(shareRequest)
 
       expect(httpClientMock.post).toHaveBeenCalledWith(
-        expect.stringContaining('/recommend'),
+        jasmine.stringContaining('/recommend'),
         shareRequest
       )
     })

@@ -1,4 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { RouterTestingModule } from '@angular/router/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { CertificationComponent } from './certification.component'
 
@@ -6,9 +9,14 @@ describe('CertificationComponent', () => {
   let component: CertificationComponent
   let fixture: ComponentFixture<CertificationComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [CertificationComponent],
+      imports: [HttpClientTestingModule, RouterTestingModule],
+      providers: [
+        { provide: 'environment', useValue: {} },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents()
   }))

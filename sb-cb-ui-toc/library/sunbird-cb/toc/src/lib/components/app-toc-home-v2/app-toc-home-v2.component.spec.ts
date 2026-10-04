@@ -1,3 +1,16 @@
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { provideHttpClient } from '@angular/common/http'
+import { provideHttpClientTesting } from '@angular/common/http/testing'
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router'
+import { MatDialogModule } from '@angular/material/dialog'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatSnackBarModule } from '@angular/material/snack-bar'
+import { provideNoopAnimations } from '@angular/platform-browser/animations'
+import { TranslateModule } from '@ngx-translate/core'
+import { PipeCountTransformModule, PipePublicURLModule, TelemetryService } from '@sunbird-cb/utils-v2'
+import { of } from 'rxjs'
+
 import { AppTocHomeV2Component } from './app-toc-home-v2.component'
 
 /**
@@ -148,27 +161,64 @@ describe('AppTocHomeV2Component', () => {
       expect(component.loggerSvc.warn).toHaveBeenCalled()
     })
 
-    it('stores the attempts the service resolves', async () => {
+    it('does not look up the attempts while the retake lookup is switched off', async () => {
       const component = createComponent({ contentReadData: { courseCategory: CA_CATEGORY } })
-      const attempts = { attemptsMade: 2, attemptsAllowed: 3, attemptsRemaining: 1, isAttempted: true }
-      component.comprehensiveAssessmentSvc.getAttemptStatus.mockResolvedValue(attempts)
 
       component['loadComprehensiveAssessmentStatus']()
       await flushPromises()
 
-      expect(component.assessmentAttempts).toEqual(attempts)
-      expect(component.assessmentAttemptsRemaining).toBe(1)
+      expect(component.comprehensiveAssessmentSvc.getAttemptStatus).not.toHaveBeenCalled()
+      expect(component.assessmentAttempts).toEqual(NO_ATTEMPTS)
+    })
+  })
+
+  describe('TestBed', () => {
+    let component: AppTocHomeV2Component
+    let fixture: ComponentFixture<AppTocHomeV2Component>
+
+    beforeEach(waitForAsync(() => {
+      TestBed.configureTestingModule({
+        declarations: [AppTocHomeV2Component],
+        imports: [
+          MatDialogModule,
+          MatMenuModule,
+          MatSnackBarModule,
+          TranslateModule.forRoot(),
+          PipeCountTransformModule,
+          PipePublicURLModule,
+        ],
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          provideRouter([]),
+          provideNoopAnimations(),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              snapshot: { data: {}, params: {}, queryParams: {} },
+              data: of({}),
+              params: of({}),
+              queryParams: of({}),
+              queryParamMap: of(convertToParamMap({})),
+              fragment: of(null),
+            },
+          },
+          { provide: 'environment', useValue: {} },
+          { provide: TelemetryService, useValue: { telemetryConfig: { channel: '' } } },
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      })
+      .compileComponents()
+    }))
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(AppTocHomeV2Component)
+      component = fixture.componentInstance
+      fixture.detectChanges()
     })
 
-    it('leaves the attempts untouched when the retake lookup fails', async () => {
-      const component = createComponent({ contentReadData: { courseCategory: CA_CATEGORY } })
-      component.comprehensiveAssessmentSvc.getAttemptStatus.mockRejectedValue(new Error('retake failed'))
-
-      component['loadComprehensiveAssessmentStatus']()
-      await flushPromises()
-
-      expect(component.assessmentAttempts).toEqual(NO_ATTEMPTS)
-      expect(component.loggerSvc.warn).toHaveBeenCalled()
+    it('should create', () => {
+      expect(component).toBeTruthy()
     })
   })
 })

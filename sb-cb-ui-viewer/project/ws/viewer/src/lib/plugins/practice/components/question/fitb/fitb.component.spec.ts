@@ -6,21 +6,21 @@ import { Subject } from 'rxjs'
 
 describe('FillInTheBlankComponent', () => {
   let component: FillInTheBlankComponent
-  let mockDomSanitizer: jest.Mocked<DomSanitizer>
-  let mockElementRef: jest.Mocked<ElementRef>
-  let mockPracticeService: jest.Mocked<PracticeService>
+  let mockDomSanitizer: jasmine.SpyObj<DomSanitizer>
+  let mockElementRef: jasmine.SpyObj<ElementRef>
+  let mockPracticeService: jasmine.SpyObj<PracticeService>
 
   beforeEach(() => {
     mockDomSanitizer = {
-      bypassSecurityTrustHtml: jest.fn(html => html),
+      bypassSecurityTrustHtml: jasmine.createSpy().and.callFake(html => html),
     } as any
 
     mockElementRef = {
       nativeElement: {
-        querySelector: jest.fn(() => ({
+        querySelector: jasmine.createSpy().and.callFake(() => ({
           value: '',
-          setAttribute: jest.fn(),
-          addEventListener: jest.fn(),
+          setAttribute: jasmine.createSpy(),
+          addEventListener: jasmine.createSpy(),
         })),
       },
     } as any
@@ -29,7 +29,7 @@ describe('FillInTheBlankComponent', () => {
       clearResponse: new Subject(),
       displayCorrectAnswer: new Subject(),
       questionAnswerHash: { value: {} },
-      shCorrectAnswer: jest.fn(),
+      shCorrectAnswer: jasmine.createSpy(),
     } as any
 
     component = new FillInTheBlankComponent(
@@ -65,9 +65,9 @@ describe('FillInTheBlankComponent', () => {
 
     it('should emit update event with joined values', () => {
       const mockInput = { value: 'testValue' }
-      mockElementRef.nativeElement.querySelector.mockReturnValue(mockInput)
+      mockElementRef.nativeElement.querySelector.and.returnValue(mockInput)
 
-      jest.spyOn(component.update, 'emit')
+      spyOn(component.update, 'emit').and.callThrough()
       component.onEntryInBlank('test123')
 
       expect(component.update.emit).toHaveBeenCalledWith('testValue')
@@ -112,7 +112,7 @@ describe('FillInTheBlankComponent', () => {
   describe('Cleanup', () => {
     it('should unsubscribe on destroy', () => {
       const mockSubscription = {
-        unsubscribe: jest.fn()
+        unsubscribe: jasmine.createSpy()
       }
       component.shCorrectAnsSubscription = mockSubscription as any
 

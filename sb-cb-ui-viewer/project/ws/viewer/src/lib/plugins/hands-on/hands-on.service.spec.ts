@@ -4,12 +4,12 @@ import { of } from 'rxjs'
 
 describe('HandsOnService', () => {
   let service: HandsOnService
-  let httpClientSpy: jest.Mocked<HttpClient>
+  let httpClientSpy: jasmine.SpyObj<HttpClient>
 
   beforeEach(() => {
     httpClientSpy = {
-      post: jest.fn(),
-      get: jest.fn(),
+      post: jasmine.createSpy(),
+      get: jasmine.createSpy(),
     } as any
 
     service = new HandsOnService(httpClientSpy)
@@ -23,7 +23,7 @@ describe('HandsOnService', () => {
     it('should make POST request to execute endpoint', () => {
       const mockExerciseData = { code: 'test code' }
       const expectedResponse = { result: 'success' }
-      httpClientSpy.post.mockReturnValue(of(expectedResponse))
+      httpClientSpy.post.and.returnValue(of(expectedResponse))
 
       service.execute(mockExerciseData).subscribe(response => {
         expect(response).toEqual(expectedResponse)
@@ -41,7 +41,7 @@ describe('HandsOnService', () => {
       const mockLexId = 'test-lex-id'
       const mockExerciseData = { code: 'test code' }
       const expectedResponse = { result: 'success' }
-      httpClientSpy.post.mockReturnValue(of(expectedResponse))
+      httpClientSpy.post.and.returnValue(of(expectedResponse))
 
       service.verifyFp(mockLexId, mockExerciseData).subscribe(response => {
         expect(response).toEqual(expectedResponse)
@@ -59,7 +59,7 @@ describe('HandsOnService', () => {
       const mockLexId = 'test-lex-id'
       const mockExerciseData = { code: 'test code' }
       const expectedResponse = { result: 'success' }
-      httpClientSpy.post.mockReturnValue(of(expectedResponse))
+      httpClientSpy.post.and.returnValue(of(expectedResponse))
 
       service.submitFp(mockLexId, mockExerciseData).subscribe(response => {
         expect(response).toEqual(expectedResponse)
@@ -77,7 +77,7 @@ describe('HandsOnService', () => {
       const mockLexId = 'test-lex-id'
       const mockExerciseData = { code: 'test java code' }
       const expectedResponse = { result: 'success' }
-      httpClientSpy.post.mockReturnValue(of(expectedResponse))
+      httpClientSpy.post.and.returnValue(of(expectedResponse))
 
       service.verifyJavaFp(mockLexId, mockExerciseData).subscribe(response => {
         expect(response).toEqual(expectedResponse)
@@ -95,7 +95,7 @@ describe('HandsOnService', () => {
       const mockLexId = 'test-lex-id'
       const mockExerciseData = { code: 'test java code' }
       const expectedResponse = { result: 'success' }
-      httpClientSpy.post.mockReturnValue(of(expectedResponse))
+      httpClientSpy.post.and.returnValue(of(expectedResponse))
 
       service.submitJavaFp(mockLexId, mockExerciseData).subscribe(response => {
         expect(response).toEqual(expectedResponse)
@@ -113,7 +113,7 @@ describe('HandsOnService', () => {
       const mockLexId = 'test-lex-id'
       const mockExerciseData = { code: 'test code' }
       const expectedResponse = { result: 'success' }
-      httpClientSpy.post.mockReturnValue(of(expectedResponse))
+      httpClientSpy.post.and.returnValue(of(expectedResponse))
 
       service.verifyCe(mockLexId, mockExerciseData).subscribe(response => {
         expect(response).toEqual(expectedResponse)
@@ -131,7 +131,7 @@ describe('HandsOnService', () => {
       const mockLexId = 'test-lex-id'
       const mockExerciseData = { code: 'test code' }
       const expectedResponse = { result: 'success' }
-      httpClientSpy.post.mockReturnValue(of(expectedResponse))
+      httpClientSpy.post.and.returnValue(of(expectedResponse))
 
       service.submitCe(mockLexId, mockExerciseData).subscribe(response => {
         expect(response).toEqual(expectedResponse)
@@ -152,9 +152,7 @@ describe('HandsOnService', () => {
       }
       const mockSubmissionContent = 'test submission content'
 
-      httpClientSpy.get
-        .mockReturnValueOnce(of(mockSubmissionResponse))
-        .mockReturnValueOnce(of(mockSubmissionContent))
+      httpClientSpy.get.and.returnValues(of(mockSubmissionResponse), of(mockSubmissionContent))
 
       service.viewLastSubmission(mockLexId).subscribe(response => {
         expect(response).toBe(mockSubmissionContent)
@@ -165,7 +163,7 @@ describe('HandsOnService', () => {
       )
       expect(httpClientSpy.get).toHaveBeenCalledWith(
         'http://test-url.com',
-        { responseType: 'text' }
+        { responseType: 'text' } as any
       )
     })
   })

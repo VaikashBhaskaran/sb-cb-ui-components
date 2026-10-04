@@ -1,5 +1,6 @@
 import { PracticeComponent } from './practice.component'
 import { ActivatedRoute, ActivatedRouteSnapshot } from '@angular/router'
+import { NsContent } from '@sunbird-cb/utils-v2'
 
 describe('PracticeComponent', () => {
   let component: PracticeComponent
@@ -15,16 +16,16 @@ describe('PracticeComponent', () => {
         fragment: '',
         data: {},
         outlet: '',
-        component: '',
-        routeConfig: undefined,
+        component: null,
+        routeConfig: null,
         root: new ActivatedRouteSnapshot,
         parent: new ActivatedRouteSnapshot,
         firstChild: new ActivatedRouteSnapshot,
         children: [],
         pathFromRoot: [],
-        paramMap: undefined,
-        queryParamMap: undefined
-      }
+        paramMap: undefined as any,
+        queryParamMap: undefined as any
+      } as any
     }
 
     // Create component with mock
@@ -39,10 +40,9 @@ describe('PracticeComponent', () => {
     it('should have default input values', () => {
       expect(component.isFetchingDataComplete).toBeFalsy()
       expect(component.isErrorOccured).toBeFalsy()
-      expect(component.quizData).toBeUndefined()
+      expect(component.quizData).toBeNull()
       expect(component.forPreview).toBeFalsy()
       expect(component.isPreviewMode).toBeFalsy()
-      expect(component.fromCreation).toBeFalsy()
     })
 
     it('should initialize quizJson with default values', () => {
@@ -54,6 +54,7 @@ describe('PracticeComponent', () => {
         maxQuestions: 0,
         requiresSubmit: 'Yes',
         showTimer: 'Yes',
+        primaryCategory: NsContent.EPrimaryCategory.PRACTICE_RESOURCE,
       })
     })
   })
@@ -100,7 +101,7 @@ describe('PracticeComponent', () => {
       // Arrange
       const testQuizData = {
         id: 'test-quiz',
-      }
+      } as unknown as NsContent.IContent
 
       // Act
       component.quizData = testQuizData
@@ -119,7 +120,8 @@ describe('PracticeComponent', () => {
         maxQuestions: 10,
         requiresSubmit: 'No',
         showTimer: 'No',
-      }
+        primaryCategory: NsContent.EPrimaryCategory.PRACTICE_RESOURCE,
+      } as any
 
       // Act
       component.quizJson = testQuizJson

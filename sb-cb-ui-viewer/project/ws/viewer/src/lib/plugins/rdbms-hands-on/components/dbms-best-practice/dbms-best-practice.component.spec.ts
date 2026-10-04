@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { DbmsBestPracticeComponent } from './dbms-best-practice.component'
 
@@ -6,7 +6,7 @@ describe('DbmsBestPracticeComponent', () => {
   let component: DbmsBestPracticeComponent
   let fixture: ComponentFixture<DbmsBestPracticeComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [DbmsBestPracticeComponent],
     })

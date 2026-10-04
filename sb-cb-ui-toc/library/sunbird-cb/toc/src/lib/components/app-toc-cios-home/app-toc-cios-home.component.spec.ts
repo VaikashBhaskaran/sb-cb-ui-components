@@ -276,13 +276,13 @@ describe('AppTocCiosHomeComponent', () => {
       expect(created.requiredKarmaCoins).toBe(30)
     })
 
-    it('should leave the karma coins at zero for an already enrolled user', () => {
+    it('should still read the karma coins off the content for an already enrolled user', () => {
       routeMock.data = of({
         extContent: { data: { content: { contentId: 'c1', contentPartner: { id: 'p1' }, requiredKarmaCoins: 30 } } },
         userEnrollContent: { data: { result: { progress: 40 } } },
       })
       const created = createComponent()
-      expect(created.requiredKarmaCoins).toBe(0)
+      expect(created.requiredKarmaCoins).toBe(30)
     })
   })
 
@@ -622,10 +622,13 @@ describe('AppTocCiosHomeComponent', () => {
   })
 
   describe('enRollToExtCourse', () => {
-    /** The course on screen; requiredKarmaCoins rides along on the content read. */
+    /** The course on screen; the coins to redeem come from the karma points deduction rule api. */
     const extContent = { contentId: 'c1', contentPartner: { id: 'p1' } }
 
-    const contentWithCoins = (requiredKarmaCoins: any) => ({ ...extContent, requiredKarmaCoins })
+    const contentWithCoins = (requiredKarmaPoints: any) => {
+      certSvcMock.getKarmaPointsDeductionRule.mockReturnValue(of({ result: { requiredKarmaPoints } }))
+      return { ...extContent }
+    }
 
     beforeEach(() => {
       // The skip paths open the consent dialog straight away - stop there.
@@ -633,13 +636,13 @@ describe('AppTocCiosHomeComponent', () => {
       component.extContentReadData = { ...extContent }
     })
 
-    it('should take the karma coins off the content read', () => {
+    it('should take the karma coins off the deduction rule api', async () => {
       component.config = {}
-      component.enRollToExtCourse(contentWithCoins(25))
+      await component.enRollToExtCourse(contentWithCoins(25))
       expect(component.karmaRedeemData.requiredKarmaCoins).toBe(25)
     })
 
-    it('should build the karma redeem data from the popup config', () => {
+    it('should build the karma redeem data from the popup config', async () => {
       component.config = {
         karmaRedeemPopup: {
           popupHeader: 'Redeem?',
@@ -648,7 +651,7 @@ describe('AppTocCiosHomeComponent', () => {
           cancelButton: 'No',
         },
       }
-      component.enRollToExtCourse(contentWithCoins(25))
+      await component.enRollToExtCourse(contentWithCoins(25))
       expect(component.karmaRedeemData).toEqual({
         requiredKarmaCoins: 25,
         header: 'Redeem?',
@@ -658,9 +661,9 @@ describe('AppTocCiosHomeComponent', () => {
       })
     })
 
-    it('should still honour a {points} placeholder in the configured message', () => {
+    it('should still honour a {points} placeholder in the configured message', async () => {
       component.config = { karmaRedeemPopup: { message: 'Spend {points} coins to unlock' } }
-      component.enRollToExtCourse(contentWithCoins(25))
+      await component.enRollToExtCourse(contentWithCoins(25))
       expect(component.karmaRedeemData.message).toBe('Spend 25 coins to unlock')
     })
 
@@ -698,55 +701,54 @@ describe('AppTocCiosHomeComponent', () => {
       expect(component.insufficientCoinsMessage).toBe('')
     })
 
-    it('should skip the popup and open consent when the content carries no karma coins', () => {
+    it('should skip the popup and open consent when the rule carries no karma coins', async () => {
       component.config = {}
-      component.enRollToExtCourse(extContent)
+      await component.enRollToExtCourse(extContent)
       expect(component.karmaRedeemData).toBeNull()
       expect(matDialogMock.open).toHaveBeenCalled()
     })
 
-    it('should skip the popup and open consent when the karma coins are zero', () => {
+    it('should skip the popup and open consent when the karma coins are zero', async () => {
       component.config = {}
-      component.enRollToExtCourse(contentWithCoins(0))
+      await component.enRollToExtCourse(contentWithCoins(0))
       expect(component.karmaRedeemData).toBeNull()
       expect(matDialogMock.open).toHaveBeenCalled()
     })
 
-    it('should treat an unparsable karma coins value as nothing to deduct', () => {
+    it('should treat an unparsable karma coins value as nothing to deduct', async () => {
       component.config = {}
-      component.enRollToExtCourse(contentWithCoins('abc'))
+      await component.enRollToExtCourse(contentWithCoins('abc'))
       expect(component.karmaRedeemData).toBeNull()
       expect(matDialogMock.open).toHaveBeenCalled()
     })
 
-    it('should show the popup whatever group the user belongs to', () => {
+    it('should show the popup whatever group the user belongs to', async () => {
       configSvcMock.unMappedUser = {
         identifier: 'USER-1',
         profileDetails: { professionalDetails: [{ group: 'Group A' }] },
       }
       component.config = {}
-      component.enRollToExtCourse(contentWithCoins(25))
+      await component.enRollToExtCourse(contentWithCoins(25))
       expect(component.karmaRedeemData.requiredKarmaCoins).toBe(25)
       expect(matDialogMock.open).not.toHaveBeenCalled()
     })
 
-    it('should not call the deduction rule api at all', () => {
-      certSvcMock.getKarmaPointsDeductionRule.mockClear()
+    it('should read the karma coins from the deduction rule api for the course and partner', async () => {
       component.config = {}
-      component.enRollToExtCourse(contentWithCoins(25))
-      expect(certSvcMock.getKarmaPointsDeductionRule).not.toHaveBeenCalled()
+      await component.enRollToExtCourse(contentWithCoins(25))
+      expect(certSvcMock.getKarmaPointsDeductionRule).toHaveBeenCalledWith('c1', 'p1')
     })
 
-    it('should tolerate a null karma popup config', () => {
+    it('should tolerate a null karma popup config', async () => {
       component.config = { karmaRedeemPopup: null }
-      component.enRollToExtCourse(contentWithCoins(5))
+      await component.enRollToExtCourse(contentWithCoins(5))
       expect(component.karmaRedeemData.requiredKarmaCoins).toBe(5)
     })
 
     const karmaRedeemEvent = () => eventsMock.dispatchEvent.mock.calls[0][0]
 
-    it('should raise continue telemetry with the content id and the ext toc pageid', () => {
-      component.enRollToExtCourse(contentWithCoins(25))
+    it('should raise continue telemetry with the content id and the ext toc pageid', async () => {
+      await component.enRollToExtCourse(contentWithCoins(25))
       eventsMock.dispatchEvent.mockClear()
 
       component.onKarmaRedeemClosed(true)
@@ -760,8 +762,8 @@ describe('AppTocCiosHomeComponent', () => {
       expect(karmaRedeemEvent().data.eventSubType).toBe('Interact')
     })
 
-    it('should send the marketplace env and the ext toc pageid on the event itself', () => {
-      component.enRollToExtCourse(contentWithCoins(25))
+    it('should send the marketplace env and the ext toc pageid on the event itself', async () => {
+      await component.enRollToExtCourse(contentWithCoins(25))
       eventsMock.dispatchEvent.mockClear()
 
       component.onKarmaRedeemClosed(true)
@@ -771,8 +773,8 @@ describe('AppTocCiosHomeComponent', () => {
       expect(karmaRedeemEvent().data.pageContext).toEqual({ pageId: 'app/toc/ext', module: 'Marketplace' })
     })
 
-    it('should raise cancel telemetry when the popup is dismissed', () => {
-      component.enRollToExtCourse(contentWithCoins(25))
+    it('should raise cancel telemetry when the popup is dismissed', async () => {
+      await component.enRollToExtCourse(contentWithCoins(25))
       eventsMock.dispatchEvent.mockClear()
 
       component.onKarmaRedeemClosed(false)
@@ -781,19 +783,19 @@ describe('AppTocCiosHomeComponent', () => {
       expect(karmaRedeemEvent().data.edata.id).toBe(extContent.contentId)
     })
 
-    it('should raise exactly one event per close, on either button', () => {
-      component.enRollToExtCourse(contentWithCoins(25))
+    it('should raise exactly one event per close, on either button', async () => {
+      await component.enRollToExtCourse(contentWithCoins(25))
       eventsMock.dispatchEvent.mockClear()
       component.onKarmaRedeemClosed(true)
       expect(eventsMock.dispatchEvent).toHaveBeenCalledTimes(1)
 
-      component.enRollToExtCourse(contentWithCoins(25))
+      await component.enRollToExtCourse(contentWithCoins(25))
       eventsMock.dispatchEvent.mockClear()
       component.onKarmaRedeemClosed(false)
       expect(eventsMock.dispatchEvent).toHaveBeenCalledTimes(1)
     })
 
-    it('should send an empty id when the popup closes with no content held', () => {
+    it('should send an empty id when the popup closes with no content held', async () => {
       eventsMock.dispatchEvent.mockClear()
 
       component.onKarmaRedeemClosed(false)
@@ -801,35 +803,35 @@ describe('AppTocCiosHomeComponent', () => {
       expect(karmaRedeemEvent().data.edata.id).toBe('')
     })
 
-    it('should remember the content being redeemed', () => {
+    it('should remember the content being redeemed', async () => {
       const content = contentWithCoins(5)
-      component.enRollToExtCourse(content)
+      await component.enRollToExtCourse(content)
       expect((component as any).karmaRedeemContent).toBe(content)
     })
 
-    it('should replace every coins placeholder in the message template', () => {
+    it('should replace every coins placeholder in the message template', async () => {
       component.config = { karmaRedeemPopup: { message: '{coins} coins now, {coins} coins total' } }
-      component.enRollToExtCourse(contentWithCoins(7))
+      await component.enRollToExtCourse(contentWithCoins(7))
       expect(component.karmaRedeemData.message).toBe('7 coins now, 7 coins total')
     })
 
-    it('should assemble the message from the before and after text', () => {
+    it('should assemble the message from the before and after text', async () => {
       component.config = {
         karmaRedeemPopup: { pointsBeforeText: 'Redeem', pointsAfterText: 'Karma Coins to unlock' },
       }
-      component.enRollToExtCourse(contentWithCoins(12))
+      await component.enRollToExtCourse(contentWithCoins(12))
       expect(component.karmaRedeemData.message).toBe('Redeem 12 Karma Coins to unlock')
     })
 
-    it('should assemble the message from the before text alone', () => {
+    it('should assemble the message from the before text alone', async () => {
       component.config = { karmaRedeemPopup: { pointsBeforeText: 'Redeem' } }
-      component.enRollToExtCourse(contentWithCoins(12))
+      await component.enRollToExtCourse(contentWithCoins(12))
       expect(component.karmaRedeemData.message).toBe('Redeem 12')
     })
 
-    it('should assemble the message from the after text alone', () => {
+    it('should assemble the message from the after text alone', async () => {
       component.config = { karmaRedeemPopup: { pointsAfterText: 'Karma Coins' } }
-      component.enRollToExtCourse(contentWithCoins(12))
+      await component.enRollToExtCourse(contentWithCoins(12))
       expect(component.karmaRedeemData.message).toBe('12 Karma Coins')
     })
   })
@@ -838,23 +840,24 @@ describe('AppTocCiosHomeComponent', () => {
     beforeEach(async () => {
       component.config = { contentConsent: { consentDocUrl: '/consent.html', assetsDocUrl: '/assets.html' } }
       jest.spyOn(component, 'callConsentApi').mockImplementation(() => { })
-      component.enRollToExtCourse({ contentId: 'c1', contentPartner: { id: 'p1' }, requiredKarmaCoins: 5 })
+      certSvcMock.getKarmaPointsDeductionRule.mockReturnValue(of({ result: { requiredKarmaPoints: 5 } }))
+      await component.enRollToExtCourse({ contentId: 'c1', contentPartner: { id: 'p1' } })
     })
 
-    it('should clear the dialog state and open the consent dialog on confirm', () => {
+    it('should clear the dialog state and open the consent dialog on confirm', async () => {
       component.onKarmaRedeemClosed(true)
       expect(component.karmaRedeemData).toBeNull()
       expect((component as any).karmaRedeemContent).toBeNull()
       expect(matDialogMock.open).toHaveBeenCalled()
     })
 
-    it('should only clear the dialog state on cancel', () => {
+    it('should only clear the dialog state on cancel', async () => {
       component.onKarmaRedeemClosed(false)
       expect(component.karmaRedeemData).toBeNull()
       expect(matDialogMock.open).not.toHaveBeenCalled()
     })
 
-    it('should do nothing when there is no pending content', () => {
+    it('should do nothing when there is no pending content', async () => {
       component.onKarmaRedeemClosed(false)
       component.onKarmaRedeemClosed(true)
       expect(matDialogMock.open).not.toHaveBeenCalled()

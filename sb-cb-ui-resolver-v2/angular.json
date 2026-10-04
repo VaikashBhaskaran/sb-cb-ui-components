@@ -26,7 +26,8 @@
           "options": {
             "main": "library/sunbird-cb/resolver-v2/src/test.ts",
             "tsConfig": "library/sunbird-cb/resolver-v2/tsconfig.spec.json",
-            "karmaConfig": "library/sunbird-cb/resolver-v2/karma.conf.js"
+            "karmaConfig": "library/sunbird-cb/resolver-v2/karma.conf.js",
+            "polyfills": ["@angular/localize/init"]
           }
         }
       }

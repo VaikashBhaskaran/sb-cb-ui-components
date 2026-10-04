@@ -20,6 +20,7 @@ describe('CompletionSurveyFormComponent (no TestBed)', () => {
   const mockSnackBar: any = { open: jest.fn() }
   const mockDialogRef: any = { close: jest.fn() }
   const mockTranslate: any = { setDefaultLang: jest.fn(), use: jest.fn() }
+  const mockCommonMethodsSvc: any = { getEnabledUrl: jest.fn().mockImplementation(({ defaultUrl }: any) => defaultUrl) }
 
   const sampleFields = [
     { id: 'q1', name: 'Q1', fieldType: 'text', isRequired: true },
@@ -47,6 +48,7 @@ describe('CompletionSurveyFormComponent (no TestBed)', () => {
       fb,
       mockAppTocSvc,
       mockTranslate,
+      mockCommonMethodsSvc,
     )
   })
 
@@ -109,7 +111,7 @@ describe('CompletionSurveyFormComponent (no TestBed)', () => {
   it('constructor should use translate when websiteLanguage is present', () => {
     localStorage.setItem('websiteLanguage', 'hi')
     const tMock: any = { setDefaultLang: jest.fn(), use: jest.fn() }
-    new CompletionSurveyFormComponent(mockSnackBar, mockDialogRef, mockData, fb, mockAppTocSvc, tMock)
+    new CompletionSurveyFormComponent(mockSnackBar, mockDialogRef, mockData, fb, mockAppTocSvc, tMock, mockCommonMethodsSvc)
     expect(tMock.setDefaultLang).toHaveBeenCalledWith('en')
     expect(tMock.use).toHaveBeenCalledWith('hi')
     localStorage.removeItem('websiteLanguage')
@@ -196,11 +198,12 @@ describe('CompletionSurveyFormComponent (no TestBed)', () => {
 
   it('submitForm should handle submit error path', () => {
     mockAppTocSvc.submitForm.mockReturnValue(throwError(() => ({ message: 'fail' })))
+    mockDialogRef.close.mockClear()
     component.surveyFormIsValid = true
     component.surveyForm = fb.group({ fields: fb.array([]) })
     component.submitForm()
     expect(mockSnackBar.open).toHaveBeenCalled()
     // dialogRef should not be closed with true in error
-    expect(mockDialogRef.close).toHaveBeenCalledWith(true)
+    expect(mockDialogRef.close).not.toHaveBeenCalledWith(true)
   })
 })
